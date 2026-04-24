@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MindMetrics Pro — Clinical Assessment Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+:root {
+  --navy: #0F1E2E;
+  --navy2: #162436;
+  --teal: #0E9E8B;
+  --teal2: #0BC5AE;
+  --gold: #C9973A;
+  --slate: #4A5E72;
+  --mist: #F2F6F9;
+  --white: #FFFFFF;
+  --danger: #D94040;
+  --warn: #D97706;
+  --ok: #1A9E5C;
+  --border: #DDE4ED;
+  --text: #1C2B3A;
+  --sub: #6B7A8D;
+  --font-serif: 'Crimson Pro', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.09);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+  --r: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--text);background:var(--mist);min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:var(--font-sans)}
+input,select,textarea{font-family:var(--font-sans)}
+
+/* ── UTILS ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn 0.35s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.55}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:none;font-size:14px;font-weight:600;transition:all .18s;letter-spacing:-.1px}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:var(--teal2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,158,139,.35)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy2);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-ghost{background:transparent;border:none;color:var(--sub);padding:8px 12px}
+.btn-ghost:hover{color:var(--text);background:rgba(0,0,0,.04)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-gold{background:linear-gradient(135deg,#C9973A,#E8B84B);color:#fff}
+.btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-lg{padding:14px 32px;font-size:16px;border-radius:10px}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:6px}
+
+/* ── FORM ── */
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:#fff;transition:border .15s,box-shadow .15s;outline:none}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.12)}
+.form-input.error{border-color:var(--danger)}
+.form-error{font-size:12px;color:var(--danger);margin-top:4px}
+.form-hint{font-size:12px;color:var(--sub);margin-top:4px}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.card-pad{padding:24px}
+
+/* ── TAGS ── */
+.tag{display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.tag-pro{background:linear-gradient(135deg,#C9973A,#E8B84B);color:#fff}
+.tag-free{background:#E8F8F5;color:var(--teal);border:1px solid rgba(14,158,139,.2)}
+.tag-risk{background:#FEF2F2;color:var(--danger);border:1px solid rgba(217,64,64,.3)}
+
+/* ══════════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════════ */
+#landing-nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(15,30,46,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07)}
+.nav-logo{display:flex;align-items:center;gap:12px}
+.nav-logo-mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--teal),#2DD4BF);display:flex;align-items:center;justify-content:center;font-size:20px}
+.nav-logo-text{font-family:var(--font-serif);font-size:20px;color:#fff;font-weight:600;letter-spacing:-.3px}
+.nav-logo-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:400;margin-top:-2px}
+.nav-links{display:flex;gap:6px}
+.nav-link{color:rgba(255,255,255,.6);font-size:14px;padding:8px 14px;border-radius:7px;transition:all .15s}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+
+#hero{min-height:100vh;background:linear-gradient(160deg,var(--navy) 0%,#0A1929 55%,#0E2235 100%);display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;opacity:.035;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,1) 1px,transparent 0);background-size:32px 32px}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(14,158,139,.18) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(14,158,139,.12);border:1px solid rgba(14,158,139,.3);border-radius:30px;padding:6px 16px;margin-bottom:28px;animation:slideDown .6s ease}
+.hero-badge span{font-size:12px;color:var(--teal2);font-weight:600;letter-spacing:.5px}
+.hero-title{font-family:var(--font-serif);font-size:clamp(40px,6vw,72px);color:#fff;font-weight:300;line-height:1.08;letter-spacing:-1px;margin-bottom:22px;animation:fadeIn .7s .1s both}
+.hero-title strong{font-weight:700;background:linear-gradient(135deg,var(--teal2),#6EE7B7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:rgba(255,255,255,.55);max-width:560px;margin:0 auto 40px;line-height:1.65;font-weight:300;animation:fadeIn .7s .2s both}
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeIn .7s .3s both}
+.hero-trust{display:flex;gap:32px;justify-content:center;margin-top:60px;opacity:.5;animation:fadeIn .7s .5s both}
+.hero-trust-item{font-size:12px;color:#fff;font-weight:500;letter-spacing:.3px}
+
+.section{padding:96px 24px}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.section-title{font-family:var(--font-serif);font-size:clamp(28px,4vw,44px);color:var(--text);font-weight:600;letter-spacing:-.5px;line-height:1.15;margin-bottom:16px}
+.section-sub{font-size:17px;color:var(--sub);max-width:560px;line-height:1.65;margin-bottom:48px}
+
+/* Features */
+#features{background:#fff}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:28px}
+.feature-card{padding:28px;border-radius:var(--r);border:1px solid var(--border);transition:all .2s;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),#6EE7B7);opacity:0;transition:opacity .2s}
+.feature-card:hover{border-color:var(--teal);box-shadow:var(--shadow-md)}
+.feature-card:hover::before{opacity:1}
+.feature-icon{font-size:28px;margin-bottom:14px}
+.feature-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;font-family:var(--font-serif)}
+.feature-desc{font-size:14px;color:var(--sub);line-height:1.65}
+.feature-pro-badge{position:absolute;top:16px;right:16px}
+
+/* Questionnaires */
+#questionnaires{background:var(--mist)}
+.q-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.q-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px;transition:all .2s;position:relative}
+.q-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.q-card-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.q-card-name{font-size:22px;font-weight:700;font-family:var(--font-serif);color:var(--text);margin-bottom:2px}
+.q-card-full{font-size:11px;color:var(--sub);margin-bottom:10px}
+.q-card-items{font-size:12px;color:var(--sub)}
+
+/* Pricing */
+#pricing{background:#fff}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:900px;margin:0 auto}
+.pricing-card{border-radius:16px;padding:36px;border:1.5px solid var(--border);position:relative;transition:all .2s}
+.pricing-card.featured{border-color:var(--teal);background:linear-gradient(160deg,#F0FDFB,#fff);box-shadow:0 8px 40px rgba(14,158,139,.15)}
+.pricing-card.featured::before{content:'Most Popular';position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:20px;letter-spacing:.5px}
+.pricing-name{font-size:14px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.pricing-price{font-family:var(--font-serif);font-size:52px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px}
+.pricing-price span{font-size:18px;color:var(--sub);font-weight:400}
+.pricing-period{font-size:13px;color:var(--sub);margin-bottom:28px}
+.pricing-features{list-style:none;margin-bottom:32px}
+.pricing-features li{padding:9px 0;border-bottom:1px solid var(--mist);font-size:14px;color:var(--text);display:flex;align-items:center;gap:10px}
+.pricing-features li::before{content:'✓';color:var(--teal);font-weight:700;font-size:13px;flex-shrink:0}
+.pricing-features li.locked{color:var(--sub)}
+.pricing-features li.locked::before{content:'✕';color:var(--border)}
+
+/* Testimonials */
+#testimonials{background:var(--navy);padding:80px 24px}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;max-width:1000px;margin:0 auto}
+.testi-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:var(--r);padding:28px}
+.testi-stars{color:var(--gold);font-size:14px;margin-bottom:14px}
+.testi-quote{font-family:var(--font-serif);font-size:17px;color:rgba(255,255,255,.85);line-height:1.65;font-style:italic;margin-bottom:20px}
+.testi-author{font-size:13px;color:rgba(255,255,255,.45);font-weight:600}
+
+/* Footer */
+footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.06);padding:48px 48px 32px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.footer-links{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.footer-link{font-size:13px;color:rgba(255,255,255,.35);transition:.15s}
+.footer-link:hover{color:rgba(255,255,255,.7)}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.2)}
+
+/* ══════════════════════════════════════════
+   AUTH MODAL
+══════════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,20,32,.75);backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+.modal-box{background:#fff;border-radius:18px;width:100%;max-width:460px;box-shadow:var(--shadow-lg);animation:slideDown .3s ease;overflow:hidden}
+.modal-header{padding:28px 32px 0;text-align:center}
+.modal-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--teal),#2DD4BF);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px}
+.modal-title{font-family:var(--font-serif);font-size:26px;font-weight:600;color:var(--text);margin-bottom:6px}
+.modal-sub{font-size:14px;color:var(--sub);line-height:1.5}
+.modal-body{padding:24px 32px 32px}
+.modal-footer{text-align:center;margin-top:20px;font-size:13px;color:var(--sub)}
+.modal-footer a{color:var(--teal);font-weight:600}
+.modal-footer a:hover{text-decoration:underline}
+.divider{display:flex;align-items:center;gap:14px;margin:20px 0;color:var(--sub);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.plan-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.plan-opt{border:2px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .15s}
+.plan-opt.selected{border-color:var(--teal);background:rgba(14,158,139,.05)}
+.plan-opt-name{font-weight:700;font-size:15px;color:var(--text);margin-bottom:2px}
+.plan-opt-price{font-size:13px;color:var(--sub)}
+
+/* ══════════════════════════════════════════
+   APP SHELL (after login)
+══════════════════════════════════════════ */
+#app-shell{display:none;min-height:100vh;background:var(--mist)}
+#app-shell.active{display:flex;flex-direction:column}
+.app-topbar{background:var(--navy);color:#fff;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-family:var(--font-serif);font-size:17px;font-weight:600}
+.topbar-logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--teal),#2DD4BF);display:flex;align-items:center;justify-content:center;font-size:17px}
+.topbar-nav{display:flex;gap:2px}
+.topbar-link{color:rgba(255,255,255,.5);font-size:13px;font-weight:500;padding:8px 14px;border-radius:7px;border:none;background:transparent;transition:all .15s;cursor:pointer}
+.topbar-link:hover{color:#fff;background:rgba(255,255,255,.08)}
+.topbar-link.active{color:#fff;background:rgba(255,255,255,.12)}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.6)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#6EE7B7);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.upgrade-pill{background:linear-gradient(135deg,#C9973A,#E8B84B);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;cursor:pointer;border:none;letter-spacing:.3px}
+
+.app-content{flex:1;max-width:960px;margin:0 auto;padding:28px 20px;width:100%}
+.app-page{display:none}
+.app-page.active{display:block;animation:fadeIn .3s ease}
+
+/* Dashboard */
+.welcome-banner{background:linear-gradient(135deg,var(--navy),#162A3F);color:#fff;border-radius:var(--r);padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+.welcome-title{font-family:var(--font-serif);font-size:24px;font-weight:300;margin-bottom:4px}
+.welcome-title strong{font-weight:700}
+.welcome-sub{font-size:13px;opacity:.55;font-family:var(--font-sans)}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px 22px}
+.stat-num{font-family:var(--font-serif);font-size:36px;font-weight:700;color:var(--text);line-height:1}
+.stat-label{font-size:12px;color:var(--sub);margin-top:4px;font-weight:500}
+.stat-delta{font-size:11px;color:var(--ok);font-weight:600;margin-top:2px}
+
+/* Paywall banner */
+.paywall-banner{background:linear-gradient(135deg,#FFF8E8,#FFFDF5);border:1.5px solid #E8C875;border-radius:var(--r);padding:22px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.paywall-text{font-size:14px;color:#7A5C00;line-height:1.55}
+.paywall-text strong{font-weight:700;font-size:15px;color:#5A4200}
+
+/* Patients table */
+.table-wrap{background:#fff;border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.table-title{font-size:14px;font-weight:700;color:var(--text)}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;padding:11px 16px;border-bottom:1px solid var(--border);text-align:left;background:#FAFBFC}
+td{padding:13px 16px;border-bottom:1px solid #F5F7FA;font-size:14px;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFD}
+
+/* Assessment panel */
+.q-catalogue{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.q-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .18s}
+.q-item:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.q-item.locked{opacity:.7;cursor:default}
+.q-item-top{padding:16px 18px;border-bottom:1px solid var(--border)}
+.q-item-name{font-size:20px;font-weight:700;font-family:var(--font-serif);color:var(--text);margin-top:6px;margin-bottom:2px}
+.q-item-full{font-size:11px;color:var(--sub)}
+.q-item-bottom{padding:11px 18px;display:flex;justify-content:space-between;align-items:center}
+.q-item-count{font-size:12px;color:var(--sub)}
+.q-item-action{font-size:12px;font-weight:600}
+
+/* Questionnaire runner */
+.q-runner-header{background:var(--navy);color:#fff;padding:20px 24px;border-radius:var(--r);margin-bottom:20px}
+.q-runner-progress{height:5px;background:rgba(255,255,255,.12);border-radius:3px;margin-top:14px}
+.q-runner-progress-fill{height:100%;border-radius:3px;transition:width .35s}
+.q-item-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:12px;transition:border .2s}
+.q-item-card.answered{border-color:rgba(14,158,139,.35)}
+.q-item-card.risk-item{border-color:rgba(217,64,64,.25);background:#FFFAFA}
+.q-question-num{font-weight:700;margin-right:8px}
+.q-question-text{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:14px;font-family:var(--font-sans)}
+.q-options{display:flex;flex-wrap:wrap;gap:8px}
+.q-opt-btn{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--slate);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.q-opt-btn:hover{border-color:var(--teal);color:var(--teal)}
+.q-opt-btn.selected{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+
+/* Results */
+.result-score-hero{text-align:center;padding:40px 32px;border-radius:var(--r);margin-bottom:20px}
+.result-score-num{font-family:var(--font-serif);font-size:80px;font-weight:700;line-height:1}
+.result-score-label{font-size:22px;font-weight:600;margin-top:8px}
+.severity-bar{display:flex;border-radius:8px;overflow:hidden;height:10px;margin:16px 0}
+.severity-seg{height:100%;transition:flex .5s}
+
+/* Subscription page */
+.sub-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:820px;margin:0 auto}
+
+/* Stripe card element */
+#stripe-card-element{padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;transition:border .15s}
+#stripe-card-element.StripeElement--focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.12)}
+.stripe-powered{font-size:11px;color:var(--sub);display:flex;align-items:center;gap:5px;margin-top:8px}
+.stripe-lock{font-size:13px}
+
+/* Loading spinner */
+.spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.spinner-dark{border-color:rgba(0,0,0,.12);border-top-color:var(--teal)}
+
+/* Risk alert */
+.risk-alert{background:#FEF2F2;border:2px solid var(--danger);border-radius:var(--r);padding:18px 22px;margin-bottom:18px}
+.risk-alert-title{font-weight:700;color:var(--danger);font-size:15px;margin-bottom:6px}
+.risk-alert-body{font-size:13px;color:#7F1D1D;line-height:1.6}
+
+/* Pro feature overlay */
+.pro-overlay{position:relative}
+.pro-overlay-mask{position:absolute;inset:0;background:rgba(255,255,255,.88);backdrop-filter:blur(3px);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:10}
+.pro-overlay-icon{font-size:32px;margin-bottom:12px}
+.pro-overlay-title{font-family:var(--font-serif);font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px}
+.pro-overlay-sub{font-size:13px;color:var(--sub);margin-bottom:18px;line-height:1.5}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:#fff;padding:14px 20px;border-radius:10px;font-size:14px;box-shadow:var(--shadow-lg);z-index:9999;display:flex;align-items:center;gap:10px;animation:slideDown .3s ease}
+.toast.success{background:var(--ok)}
+.toast.error{background:var(--danger)}
+
+@media(max-width:768px){
+  #landing-nav{padding:0 20px}
+  .nav-links{display:none}
+  .hero-trust{display:none}
+  .app-topbar{padding:0 16px}
+  .topbar-nav{display:none}
+  .app-content{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+
+  <!-- Nav -->
+  <nav id="landing-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-mark">🧠</div>
+      <div>
+        <div class="nav-logo-text">MindMetrics Pro</div>
+        <div class="nav-logo-sub">Clinical Assessment Platform</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#questionnaires" class="nav-link">Questionnaires</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#testimonials" class="nav-link">Reviews</a>
+    </div>
+    <div class="nav-cta">
+      <button class="btn btn-ghost" style="color:rgba(255,255,255,.6)" onclick="showAuth('login')">Sign In</button>
+      <button class="btn btn-primary" onclick="showAuth('register')">Get Started Free</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-glow"></div>
+    <div style="position:relative;z-index:1">
+      <div class="hero-badge">
+        <span>🇦🇺 Built for Australian Clinicians</span>
+      </div>
+      <h1 class="hero-title">
+        The Clinical Assessment<br/>Platform Built for<br/><strong>Mental Health Professionals</strong>
+      </h1>
+      <p class="hero-sub">
+        Administer 11 validated psychometric questionnaires, generate AI-assisted clinical summaries, track patients over time, and share assessments remotely — all in one secure platform.
+      </p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary btn-lg" onclick="showAuth('register')">Start Free — No Credit Card</button>
+        <button class="btn btn-outline btn-lg" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="showAuth('login')">Sign In to Account</button>
+      </div>
+      <div class="hero-trust">
+        <div class="hero-trust-item">✓ AHPRA-aligned workflows</div>
+        <div class="hero-trust-item">✓ DSM-5 validated tools</div>
+        <div class="hero-trust-item">✓ AI-powered summaries</div>
+        <div class="hero-trust-item">✓ Secure &amp; private</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="section">
+    <div class="section-inner">
+      <div class="section-label">Platform Features</div>
+      <h2 class="section-title">Everything you need to<br/>assess, track &amp; report</h2>
+      <p class="section-sub">From initial screening to longitudinal monitoring, MindMetrics Pro covers the full assessment lifecycle.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3 class="feature-title">11 Validated Questionnaires</h3>
+          <p class="feature-desc">PHQ-9, GAD-7, BDI-II, SPIN, MDQ, ASRS, Y-BOCS, PCL-5, AUDIT, OCI-R, DASS-21 — all fully scored with clinical interpretation ranges.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3 class="feature-title">AI Clinical Summaries</h3>
+          <p class="feature-desc">Claude AI generates structured reports with risk alerts, clinical impressions, and evidence-based treatment recommendations.</p>
+          <div class="feature-pro-badge"><span class="tag tag-pro">PRO</span></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚠️</div>
+          <h3 class="feature-title">Risk Flagging</h3>
+          <p class="feature-desc">Automatic detection of suicidality and self-harm endorsements with prominent clinical alerts and escalation guidance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📈</div>
+          <h3 class="feature-title">Longitudinal Tracking</h3>
+          <p class="feature-desc">Visualise patient progress over time with trend charts and session-by-session score comparisons.</p>
+          <div class="feature-pro-badge"><span class="tag tag-pro">PRO</span></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h3 class="feature-title">Remote Patient Links</h3>
+          <p class="feature-desc">Send patients a unique URL to complete questionnaires on their own device before appointments.</p>
+          <div class="feature-pro-badge"><span class="tag tag-pro">PRO</span></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📄</div>
+          <h3 class="feature-title">PDF Report Export</h3>
+          <p class="feature-desc">Generate professional printable reports for patient files, referrals, and MDT communication.</p>
+          <div class="feature-pro-badge"><span class="tag tag-pro">PRO</span></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3 class="feature-title">Unlimited Patients</h3>
+          <p class="feature-desc">Manage unlimited patient records with full session history, notes, and demographic details.</p>
+          <div class="feature-pro-badge"><span class="tag tag-pro">PRO</span></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3 class="feature-title">Secure &amp; Private</h3>
+          <p class="feature-desc">Your data is encrypted and never used for AI training. Built with clinical confidentiality as a first principle.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🆓</div>
+          <h3 class="feature-title">Free to Assess</h3>
+          <p class="feature-desc">The core assessment tools are always free. Run questionnaires, view scores, and get basic interpretations at no cost.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Questionnaires -->
+  <section id="questionnaires" class="section">
+    <div class="section-inner">
+      <div class="section-label">Validated Instruments</div>
+      <h2 class="section-title">11 clinician-grade<br/>assessment tools</h2>
+      <p class="section-sub">Every questionnaire follows published scoring algorithms with severity bands aligned to clinical cut-offs.</p>
+      <div class="q-grid" id="landing-q-grid"></div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="section">
+    <div class="section-inner" style="text-align:center">
+      <div class="section-label">Simple, Transparent Pricing</div>
+      <h2 class="section-title">Free to assess.<br/>Pro for everything else.</h2>
+      <p class="section-sub" style="margin:0 auto 48px">No hidden fees. Cancel anytime. Your first assessment is always free.</p>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-name">Free</div>
+          <div class="pricing-price">$0<span></span></div>
+          <div class="pricing-period">forever free</div>
+          <ul class="pricing-features">
+            <li>All 11 questionnaires</li>
+            <li>Basic score interpretation</li>
+            <li>Risk flagging &amp; alerts</li>
+            <li>Up to 3 patients</li>
+            <li class="locked">AI clinical summaries</li>
+            <li class="locked">PDF report export</li>
+            <li class="locked">Longitudinal tracking</li>
+            <li class="locked">Remote patient links</li>
+            <li class="locked">Unlimited patients</li>
+          </ul>
+          <button class="btn btn-outline" style="width:100%" onclick="showAuth('register')">Get Started Free</button>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-name">Pro</div>
+          <div class="pricing-price">$49<span>/mo</span></div>
+          <div class="pricing-period">billed monthly · cancel anytime</div>
+          <ul class="pricing-features">
+            <li>All 11 questionnaires</li>
+            <li>Full score interpretation</li>
+            <li>Risk flagging &amp; alerts</li>
+            <li>Unlimited patients</li>
+            <li>AI clinical summaries</li>
+            <li>PDF report export</li>
+            <li>Longitudinal tracking &amp; trends</li>
+            <li>Remote patient share links</li>
+            <li>Priority support</li>
+          </ul>
+          <button class="btn btn-primary btn-gold" style="width:100%" onclick="showAuth('register','pro')">Start Pro — 14 Day Free Trial</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-name">Practice</div>
+          <div class="pricing-price">$149<span>/mo</span></div>
+          <div class="pricing-period">up to 5 clinicians</div>
+          <ul class="pricing-features">
+            <li>Everything in Pro</li>
+            <li>Up to 5 clinician accounts</li>
+            <li>Shared patient records</li>
+            <li>Practice-level analytics</li>
+            <li>Custom branding</li>
+            <li>Dedicated onboarding</li>
+            <li>SLA support</li>
+          </ul>
+          <button class="btn btn-outline" style="width:100%" onclick="showAuth('register','practice')">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="section-label" style="color:rgba(14,158,139,.8)">Clinician Reviews</div>
+      <h2 class="section-title" style="color:#fff">Trusted by mental health professionals</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"Finally a platform that understands clinical workflow. The AI summaries save me 20 minutes per patient and the risk flagging gives me confidence I haven't missed anything."</p>
+        <div class="testi-author">Dr. Sarah L. — Clinical Psychologist, Sydney</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"Being able to send patients the questionnaire link before their appointment has transformed our intake process. We arrive at the session with data, not a blank sheet."</p>
+        <div class="testi-author">Dr. Michael T. — Psychiatrist, Melbourne</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"The longitudinal tracking feature is what sold me on Pro. Seeing a patient's PHQ-9 trend over 6 months of therapy is incredibly powerful evidence of treatment efficacy."</p>
+        <div class="testi-author">Emma W. — Registered Psychologist, Brisbane</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="nav-logo">
+      <div class="nav-logo-mark">🧠</div>
+      <div>
+        <div class="nav-logo-text">MindMetrics Pro</div>
+        <div class="nav-logo-sub">Clinical Assessment Platform</div>
+      </div>
+    </div>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Privacy Policy</a>
+      <a href="#" class="footer-link">Terms of Service</a>
+      <a href="#" class="footer-link">AHPRA Compliance</a>
+      <a href="#" class="footer-link">Support</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+    <div class="footer-copy">© 2025 MindMetrics Pro. All rights reserved. For qualified clinicians only. Not for patient self-diagnosis.</div>
+  </footer>
+
+</div><!-- /screen-landing -->
+
+
+<!-- ══════════════════════════════════════════
+     AUTH MODAL
+══════════════════════════════════════════ -->
+<div id="auth-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-logo">🧠</div>
+      <div class="modal-title" id="auth-title">Create your account</div>
+      <div class="modal-sub" id="auth-sub">Join thousands of mental health clinicians</div>
+    </div>
+    <div class="modal-body">
+      <!-- Register form -->
+      <div id="auth-register">
+        <div class="plan-selector" id="plan-selector">
+          <div class="plan-opt selected" id="plan-free" onclick="selectPlan('free')">
+            <div class="plan-opt-name">Free</div>
+            <div class="plan-opt-price">Always free</div>
+          </div>
+          <div class="plan-opt" id="plan-pro" onclick="selectPlan('pro')">
+            <div class="plan-opt-name">⭐ Pro</div>
+            <div class="plan-opt-price">$49/month</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="reg-name" placeholder="Dr. Jane Smith"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Work Email</label>
+          <input type="email" class="form-input" id="reg-email" placeholder="you@practice.com.au"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="reg-password" placeholder="Min. 8 characters"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profession</label>
+          <select class="form-input" id="reg-profession">
+            <option value="">Select your profession</option>
+            <option>Clinical Psychologist</option>
+            <option>Psychiatrist</option>
+            <option>Registered Psychologist</option>
+            <option>GP / General Practitioner</option>
+            <option>Mental Health Nurse</option>
+            <option>Social Worker</option>
+            <option>Counsellor</option>
+            <option>Other Allied Health</option>
+          </select>
+        </div>
+        <!-- Stripe card (shown only for Pro) -->
+        <div id="stripe-section" class="hidden">
+          <div class="divider">Billing Details</div>
+          <div class="form-group">
+            <label class="form-label">Card Details</label>
+            <div id="stripe-card-element"></div>
+            <div class="stripe-powered"><span class="stripe-lock">🔒</span> Secured by Stripe. 14-day free trial — cancel anytime.</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px" id="reg-btn" onclick="handleRegister()">
+          <span id="reg-btn-text">Create Free Account</span>
+        </button>
+        <div class="modal-footer">Already have an account? <a href="#" onclick="showAuth('login')">Sign in</a></div>
+        <div style="margin-top:14px;font-size:11px;color:var(--sub);text-align:center;line-height:1.5">
+          By registering you confirm you are a qualified healthcare professional. MindMetrics Pro is not for patient self-assessment.
+        </div>
+      </div>
+
+      <!-- Login form -->
+      <div id="auth-login" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="login-email" placeholder="you@practice.com.au"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="login-password" placeholder="Your password"/>
+          <div class="form-hint"><a href="#" style="color:var(--teal)">Forgot password?</a></div>
+        </div>
+        <button class="btn btn-navy" style="width:100%;justify-content:center;padding:13px" onclick="handleLogin()">
+          <span id="login-btn-text">Sign In</span>
+        </button>
+        <div class="modal-footer">No account? <a href="#" onclick="showAuth('register')">Create one free</a></div>
+      </div>
+
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;font-size:12px;color:var(--sub)" onclick="closeAuth()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     UPGRADE MODAL
+══════════════════════════════════════════ -->
+<div id="upgrade-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-logo" style="background:linear-gradient(135deg,#C9973A,#E8B84B)">⭐</div>
+      <div class="modal-title">Upgrade to Pro</div>
+      <div class="modal-sub">Unlock AI summaries, unlimited patients, PDF export, and more.</div>
+    </div>
+    <div class="modal-body">
+      <ul class="pricing-features" style="margin-bottom:20px">
+        <li>AI-generated clinical summary reports</li>
+        <li>Unlimited patient records</li>
+        <li>PDF export for patient files</li>
+        <li>Longitudinal trend tracking</li>
+        <li>Remote patient share links</li>
+        <li>Priority support</li>
+      </ul>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:36px;font-family:var(--font-serif);font-weight:700;color:var(--text)">$49<span style="font-size:16px;color:var(--sub);font-weight:400">/month</span></div>
+        <div style="font-size:13px;color:var(--sub)">14-day free trial — cancel anytime</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Card Details</label>
+        <div id="stripe-card-upgrade"></div>
+        <div class="stripe-powered"><span class="stripe-lock">🔒</span> Secured by Stripe</div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;padding:13px" onclick="handleUpgrade()">
+        <span id="upgrade-btn-text">Start Free Trial</span>
+      </button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;font-size:12px" onclick="closeUpgrade()">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════ -->
+<div id="app-shell">
+  <div class="app-topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-mark">🧠</div>
+      MindMetrics Pro
+    </div>
+    <div class="topbar-nav">
+      <button class="topbar-link active" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="topbar-link" onclick="showPage('patients')">Patients</button>
+      <button class="topbar-link" onclick="showPage('assess')">Assess</button>
+      <button class="topbar-link" onclick="showPage('reports')">Reports</button>
+      <button class="topbar-link" onclick="showPage('subscription')">Billing</button>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar">D</div>
+        <span id="user-name-chip">Dr. Smith</span>
+      </div>
+      <button class="upgrade-pill hidden" id="upgrade-pill" onclick="openUpgradeModal()">⭐ Upgrade</button>
+      <button class="btn btn-ghost btn-sm" style="color:rgba(255,255,255,.45);font-size:12px" onclick="handleLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="app-content">
+
+    <!-- DASHBOARD -->
+    <div class="app-page active" id="page-dashboard">
+      <div class="welcome-banner">
+        <div>
+          <div class="welcome-title">Good morning, <strong id="welcome-name">Doctor</strong> 👋</div>
+          <div class="welcome-sub">Here's a summary of your clinical activity</div>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('assess')">+ New Assessment</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-patients">—</div>
+          <div class="stat-label">Active Patients</div>
+          <div class="stat-delta" id="stat-patients-limit"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-sessions">—</div>
+          <div class="stat-label">Sessions Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-risk">—</div>
+          <div class="stat-label">Risk Flags (all time)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-plan">Free</div>
+          <div class="stat-label">Current Plan</div>
+        </div>
+      </div>
+      <div class="paywall-banner" id="dash-paywall">
+        <div class="paywall-text">
+          <strong>⭐ You're on the Free plan.</strong><br/>
+          Upgrade to Pro for AI summaries, unlimited patients, PDF export, trend tracking, and remote patient links.
+        </div>
+        <button class="btn btn-gold" onclick="openUpgradeModal()">Upgrade to Pro — $49/mo</button>
+      </div>
+      <div style="margin-top:16px">
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Recent Sessions</div>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('assess')">+ New</button>
+          </div>
+          <div id="recent-sessions-body">
+            <div style="padding:40px;text-align:center;color:var(--sub);font-size:14px">No sessions yet. Start your first assessment.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div class="app-page hidden" id="page-patients">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <h2 style="font-family:var(--font-serif);font-size:26px;font-weight:600">Patients</h2>
+          <div style="font-size:13px;color:var(--sub);margin-top:2px" id="patient-count-label"></div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddPatient()" id="add-patient-btn">+ Add Patient</button>
+      </div>
+      <div id="patient-paywall" class="paywall-banner hidden">
+        <div class="paywall-text"><strong>Patient limit reached.</strong><br/>Free plan allows up to 3 patients. Upgrade to Pro for unlimited patients.</div>
+        <button class="btn btn-gold" onclick="openUpgradeModal()">Upgrade to Pro</button>
+      </div>
+      <div class="table-wrap">
+        <table id="patients-table">
+          <thead><tr><th>Name</th><th>DOB</th><th>Profession/Ref</th><th>Sessions</th><th>Last Assessment</th><th>Risk</th><th></th></tr></thead>
+          <tbody id="patients-tbody"></tbody>
+        </table>
+      </div>
+      <!-- Add patient modal inline -->
+      <div id="add-patient-form" class="card card-pad hidden" style="margin-top:16px;animation:slideDown .25s ease">
+        <div style="font-family:var(--font-serif);font-size:18px;font-weight:600;margin-bottom:18px">New Patient</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px">
+          <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="p-name" placeholder="Patient Name"/></div>
+          <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" class="form-input" id="p-dob"/></div>
+          <div class="form-group"><label class="form-label">Medicare / ID</label><input type="text" class="form-input" id="p-medicare" placeholder="Optional"/></div>
+          <div class="form-group"><label class="form-label">Referral Source</label><input type="text" class="form-input" id="p-referral" placeholder="GP, self-referral..."/></div>
+          <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="p-notes" placeholder="Brief presenting concern..."/></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-primary" onclick="savePatient()">Save Patient</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('add-patient-form').classList.add('hidden')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSESS -->
+    <div class="app-page hidden" id="page-assess">
+      <div id="assess-home">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <h2 style="font-family:var(--font-serif);font-size:26px;font-weight:600">Run Assessment</h2>
+            <div style="font-size:13px;color:var(--sub);margin-top:2px">Select a patient and questionnaire to begin</div>
+          </div>
+        </div>
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="form-label" style="margin-bottom:8px">Assessing Patient</div>
+          <select class="form-input" id="assess-patient-select" style="max-width:340px">
+            <option value="">— Select patient —</option>
+          </select>
+        </div>
+        <div class="form-label" style="margin-bottom:12px">Choose Questionnaire</div>
+        <div class="q-catalogue" id="assess-q-catalogue"></div>
+      </div>
+      <div id="assess-runner" class="hidden"></div>
+      <div id="assess-result" class="hidden"></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="app-page hidden" id="page-reports">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="font-family:var(--font-serif);font-size:26px;font-weight:600">Clinical Reports</h2>
+        <button class="btn btn-outline btn-sm" onclick="window.print()" id="print-btn">🖨 Print / PDF</button>
+      </div>
+      <div class="pro-overlay" id="reports-pro-overlay">
+        <!-- real content below, masked if free -->
+        <div id="reports-content">
+          <div style="margin-bottom:16px">
+            <label class="form-label">Select Patient</label>
+            <select class="form-input" id="report-patient-select" style="max-width:340px" onchange="loadReportForPatient()">
+              <option value="">— Select patient —</option>
+            </select>
+          </div>
+          <div id="report-body">
+            <div style="padding:60px;text-align:center;color:var(--sub);font-size:14px">Select a patient to generate their report.</div>
+          </div>
+        </div>
+        <div class="pro-overlay-mask hidden" id="reports-mask">
+          <div class="pro-overlay-icon">📄</div>
+          <div class="pro-overlay-title">Reports are a Pro Feature</div>
+          <div class="pro-overlay-sub">Upgrade to generate AI-assisted clinical summary reports with risk flags, structured sections, and PDF export.</div>
+          <button class="btn btn-gold" onclick="openUpgradeModal()">⭐ Upgrade to Pro</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION / BILLING -->
+    <div class="app-page hidden" id="page-subscription">
+      <h2 style="font-family:var(--font-serif);font-size:26px;font-weight:600;margin-bottom:6px">Billing &amp; Subscription</h2>
+      <div style="font-size:14px;color:var(--sub);margin-bottom:28px">Manage your MindMetrics Pro plan</div>
+      <div class="card card-pad" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:12px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Current Plan</div>
+            <div style="font-size:22px;font-weight:700;font-family:var(--font-serif)" id="billing-plan-name">Free</div>
+            <div style="font-size:13px;color:var(--sub);margin-top:2px" id="billing-plan-detail">Always free</div>
+          </div>
+          <div>
+            <span class="tag" id="billing-plan-tag" style="background:#E8F8F5;color:var(--teal)">Active</span>
+          </div>
+        </div>
+      </div>
+      <div class="sub-plans" id="sub-plans-grid"></div>
+    </div>
+
+  </div><!-- /app-content -->
+</div><!-- /app-shell -->
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+// ─── QUESTIONNAIRE DATA ─────────────────────────────────────────────────
+const QDEFS = {
+  phq9:{id:"phq9",name:"PHQ-9",fullName:"Patient Health Questionnaire-9",category:"Depression",color:"#3B6FA0",bg:"#EDF4FB",items:9,riskItems:[8],options:["Not at all","Several days","More than half the days","Nearly every day"],values:[0,1,2,3],questions:["Little interest or pleasure in doing things","Feeling down, depressed, or hopeless","Trouble falling or staying asleep, or sleeping too much","Feeling tired or having little energy","Poor appetite or overeating","Feeling bad about yourself — or that you are a failure","Trouble concentrating on things","Moving or speaking so slowly that others could have noticed, or being so fidgety or restless","Thoughts that you would be better off dead, or thoughts of hurting yourself"],instructions:"Over the last 2 weeks, how often have you been bothered by any of the following?",scoring:[{min:0,max:4,label:"Minimal",color:"#27AE60"},{min:5,max:9,label:"Mild",color:"#F39C12"},{min:10,max:14,label:"Moderate",color:"#E67E22"},{min:15,max:19,label:"Moderately Severe",color:"#E74C3C"},{min:20,max:27,label:"Severe",color:"#C0392B"}]},
+  gad7:{id:"gad7",name:"GAD-7",fullName:"Generalized Anxiety Disorder-7",category:"Anxiety",color:"#6C5CE7",bg:"#F0EEFF",items:7,options:["Not at all","Several days","More than half the days","Nearly every day"],values:[0,1,2,3],questions:["Feeling nervous, anxious, or on edge","Not being able to stop or control worrying","Worrying too much about different things","Trouble relaxing","Being so restless that it is hard to sit still","Becoming easily annoyed or irritable","Feeling afraid, as if something awful might happen"],instructions:"Over the last 2 weeks, how often have you been bothered by the following?",scoring:[{min:0,max:4,label:"Minimal",color:"#27AE60"},{min:5,max:9,label:"Mild",color:"#F39C12"},{min:10,max:14,label:"Moderate",color:"#E67E22"},{min:15,max:21,label:"Severe",color:"#E74C3C"}]},
+  bdi2:{id:"bdi2",name:"BDI-II",fullName:"Beck Depression Inventory-II",category:"Depression",color:"#2D6A4F",bg:"#EAFAF1",items:21,riskItems:[8],instructions:"Pick the statement in each group that best describes how you have been feeling during the PAST TWO WEEKS.",customQ:[{t:"Sadness",o:["I do not feel sad","I feel sad much of the time","I am sad all the time","I am so sad I can't stand it"],v:[0,1,2,3]},{t:"Pessimism",o:["Not discouraged about future","More discouraged than I used to be","I do not expect things to work out","My future is hopeless"],v:[0,1,2,3]},{t:"Past Failure",o:["I do not feel like a failure","I have failed more than I should","I see a lot of failures looking back","I am a total failure"],v:[0,1,2,3]},{t:"Loss of Pleasure",o:["I get as much pleasure as ever","I don't enjoy things as much","I get very little pleasure","I can't get any pleasure"],v:[0,1,2,3]},{t:"Guilty Feelings",o:["Not particularly guilty","I feel guilty over many things","I feel quite guilty most of the time","I feel guilty all the time"],v:[0,1,2,3]},{t:"Punishment",o:["Don't feel punished","I feel I may be punished","I expect to be punished","I feel I am being punished"],v:[0,1,2,3]},{t:"Self-Dislike",o:["I feel the same about myself","I have lost confidence","I am disappointed in myself","I dislike myself"],v:[0,1,2,3]},{t:"Self-Criticalness",o:["I don't blame myself more than usual","I am more critical of myself","I criticize myself for all faults","I blame myself for everything bad"],v:[0,1,2,3]},{t:"Suicidal Thoughts",o:["No thoughts of killing myself","I have thoughts but would not carry out","I would like to kill myself","I would kill myself if I had the chance"],v:[0,1,2,3]},{t:"Crying",o:["I don't cry more than usual","I cry more than I used to","I cry over every little thing","I feel like crying but can't"],v:[0,1,2,3]},{t:"Agitation",o:["No more restless than usual","I feel more restless than usual","So restless it's hard to stay still","So restless I have to keep moving"],v:[0,1,2,3]},{t:"Loss of Interest",o:["I have not lost interest","I am less interested than before","I have lost most of my interest","It's hard to get interested in anything"],v:[0,1,2,3]},{t:"Indecisiveness",o:["I make decisions as well as ever","More difficult to decide than usual","Much greater difficulty deciding","I have trouble making any decision"],v:[0,1,2,3]},{t:"Worthlessness",o:["I do not feel worthless","I don't consider myself as worthwhile","I feel more worthless than others","I feel utterly worthless"],v:[0,1,2,3]},{t:"Loss of Energy",o:["I have as much energy as ever","I have less energy than before","Not enough energy to do very much","Not enough energy to do anything"],v:[0,1,2,3]},{t:"Sleep Changes",o:["No change in sleeping","I sleep somewhat more/less than usual","I sleep a lot more/less than usual","I sleep most of the day or wake very early"],v:[0,1,2,3]},{t:"Irritability",o:["No more irritable than usual","More irritable than usual","Much more irritable than usual","Irritable all the time"],v:[0,1,2,3]},{t:"Appetite Changes",o:["No change in appetite","Somewhat less/greater appetite","Much less/greater appetite","No appetite at all / crave food all the time"],v:[0,1,2,3]},{t:"Concentration",o:["Concentrate as well as ever","Can't concentrate as well as usual","Hard to keep mind on anything long","I can't concentrate on anything"],v:[0,1,2,3]},{t:"Fatigue",o:["No more tired than usual","More tired than usual","Too tired to do a lot of things","Too tired to do most things"],v:[0,1,2,3]},{t:"Loss of Interest in Sex",o:["No recent change in interest in sex","Less interested than before","Much less interested now","Lost interest in sex completely"],v:[0,1,2,3]}],scoring:[{min:0,max:13,label:"Minimal",color:"#27AE60"},{min:14,max:19,label:"Mild",color:"#F39C12"},{min:20,max:28,label:"Moderate",color:"#E67E22"},{min:29,max:63,label:"Severe",color:"#E74C3C"}]},
+  spin:{id:"spin",name:"SPIN",fullName:"Social Phobia Inventory",category:"Social Anxiety",color:"#D4870A",bg:"#FDF3E3",items:17,options:["Not at all","A little","Somewhat","Very much","Extremely"],values:[0,1,2,3,4],questions:["I am afraid of people in authority","I am bothered by blushing in front of people","Parties and social events scare me","I avoid talking to people I don't know","Being criticised scares me a lot","Fear of embarrassment causes me to avoid doing things","Sweating in front of people causes me distress","I avoid going to parties","I avoid activities in which I am the centre of attention","Talking to strangers scares me","I avoid having to give speeches","I would do anything to avoid being criticised","Heart palpitations bother me around people","I am afraid of doing things when people might be watching","Being embarrassed or looking stupid are my worst fears","I avoid speaking to anyone in authority","Trembling or shaking in front of others is distressing"],instructions:"For each problem, how much has it bothered you during the past week?",scoring:[{min:0,max:20,label:"No Social Phobia",color:"#27AE60"},{min:21,max:30,label:"Mild",color:"#F39C12"},{min:31,max:40,label:"Moderate",color:"#E67E22"},{min:41,max:50,label:"Severe",color:"#E74C3C"},{min:51,max:68,label:"Very Severe",color:"#C0392B"}]},
+  mdq:{id:"mdq",name:"MDQ",fullName:"Mood Disorder Questionnaire",category:"Bipolar",color:"#C0392B",bg:"#FDEDEC",items:13,options:["Yes","No"],values:[1,0],questions:["You felt so good or so hyper that other people thought you were not your normal self, or you were so hyper that you got into trouble","You were so irritable that you shouted at people or started fights or arguments","You felt much more self-confident than usual","You got much less sleep than usual and found you didn't miss it","You were much more talkative or spoke much faster than usual","Thoughts raced through your head or you couldn't slow your mind down","You were so easily distracted by things around you that you had trouble concentrating","You had much more energy than usual","You were much more active or did many more things than usual","You were much more social or outgoing than usual","You were much more interested in sex than usual","You did things that were unusual for you or that other people might have seen as excessive, foolish, or risky","Spending money got you or your family into trouble"],instructions:"Has there ever been a period of time when you were not your usual self and...",scoring:[{min:0,max:6,label:"Below threshold",color:"#27AE60"},{min:7,max:13,label:"Positive Screen for Bipolar",color:"#E74C3C"}]},
+  asrs:{id:"asrs",name:"ASRS",fullName:"Adult ADHD Self-Report Scale",category:"ADHD",color:"#1ABC9C",bg:"#E8F8F5",items:6,options:["Never","Rarely","Sometimes","Often","Very Often"],values:[0,0,0,1,1],questions:["[Part A] How often do you have trouble wrapping up the final details of a project?","[Part A] How often do you have difficulty getting things in order when you have to do a task requiring organisation?","[Part A] How often do you have problems remembering appointments or obligations?","[Part A] When you have a task that requires a lot of thought, how often do you avoid getting started?","[Part A] How often do you fidget or squirm with your hands or feet when you have to sit for a long time?","[Part A] How often do you feel overly active and compelled to do things, like driven by a motor?"],instructions:"How often have you experienced the following over the past 6 months? (Part A — 6 screening items)",scoring:[{min:0,max:3,label:"ADHD Unlikely",color:"#27AE60"},{min:4,max:6,label:"Positive Screen for ADHD",color:"#E74C3C"}]},
+  ybocs:{id:"ybocs",name:"Y-BOCS",fullName:"Yale-Brown Obsessive Compulsive Scale",category:"OCD",color:"#8E44AD",bg:"#F5EEF8",items:10,instructions:"Rate the severity of each symptom over the past week, including today.",customQ:[{t:"Time occupied by obsessive thoughts",o:["None","Mild <1hr/day","Moderate 1–3hr","Severe 3–8hr","Extreme >8hr"],v:[0,1,2,3,4],d:"Obsessions"},{t:"Interference from obsessive thoughts",o:["None","Mild","Moderate","Severe","Extreme"],v:[0,1,2,3,4],d:"Obsessions"},{t:"Distress from obsessive thoughts",o:["None","Mild","Moderate","Severe","Extreme"],v:[0,1,2,3,4],d:"Obsessions"},{t:"Resistance against obsessions",o:["Always resists","Much of the time","Some resistance","Little resistance","No resistance"],v:[0,1,2,3,4],d:"Obsessions"},{t:"Control over obsessive thoughts",o:["Complete control","Much control","Moderate control","Little control","No control"],v:[0,1,2,3,4],d:"Obsessions"},{t:"Time spent on compulsions",o:["None","Mild <1hr/day","Moderate 1–3hr","Severe 3–8hr","Extreme >8hr"],v:[0,1,2,3,4],d:"Compulsions"},{t:"Interference from compulsions",o:["None","Mild","Moderate","Severe","Extreme"],v:[0,1,2,3,4],d:"Compulsions"},{t:"Distress if compulsions prevented",o:["None","Mild","Moderate","Severe","Extreme"],v:[0,1,2,3,4],d:"Compulsions"},{t:"Resistance against compulsions",o:["Always resists","Much of the time","Some resistance","Little resistance","No resistance"],v:[0,1,2,3,4],d:"Compulsions"},{t:"Control over compulsions",o:["Complete control","Much control","Moderate control","Little control","No control"],v:[0,1,2,3,4],d:"Compulsions"}],scoring:[{min:0,max:7,label:"Subclinical",color:"#27AE60"},{min:8,max:15,label:"Mild",color:"#F39C12"},{min:16,max:23,label:"Moderate",color:"#E67E22"},{min:24,max:31,label:"Severe",color:"#E74C3C"},{min:32,max:40,label:"Extreme",color:"#C0392B"}]},
+  pcl5:{id:"pcl5",name:"PCL-5",fullName:"PTSD Checklist for DSM-5",category:"PTSD",color:"#E07B54",bg:"#FDF0EB",items:20,options:["Not at all","A little bit","Moderately","Quite a bit","Extremely"],values:[0,1,2,3,4],questions:["Repeated, disturbing, and unwanted memories of the stressful experience","Repeated, disturbing dreams of the stressful experience","Suddenly feeling or acting as if the experience were happening again","Feeling very upset when something reminded you of the experience","Strong physical reactions when something reminded you of the experience","Avoiding memories, thoughts, or feelings related to the experience","Avoiding external reminders of the experience","Trouble remembering important parts of the experience","Having strong negative beliefs about yourself, other people, or the world","Blaming yourself or someone else for the experience","Strong negative feelings such as fear, horror, anger, guilt, or shame","Loss of interest in activities you used to enjoy","Feeling distant or cut off from other people","Trouble experiencing positive feelings","Irritable behaviour, angry outbursts, or acting aggressively","Taking too many risks or doing things that could cause you harm","Being 'superalert' or watchful or on guard","Feeling jumpy or easily startled","Having difficulty concentrating","Trouble falling or staying asleep"],instructions:"In the past month, how much were you bothered by these problems?",scoring:[{min:0,max:32,label:"Below Clinical Threshold",color:"#27AE60"},{min:33,max:80,label:"Probable PTSD",color:"#E74C3C"}]},
+  audit:{id:"audit",name:"AUDIT",fullName:"Alcohol Use Disorders Identification Test",category:"Substance Use",color:"#27AE60",bg:"#EAFAF1",items:10,instructions:"Please answer the following about your alcohol use.",customQ:[{t:"How often do you have a drink containing alcohol?",o:["Never","Monthly or less","2–4 times/month","2–3 times/week","4+ times/week"],v:[0,1,2,3,4]},{t:"How many standard drinks on a typical day when drinking?",o:["1–2","3–4","5–6","7–9","10+"],v:[0,1,2,3,4]},{t:"How often do you have 6 or more drinks on one occasion?",o:["Never","Less than monthly","Monthly","Weekly","Daily/almost daily"],v:[0,1,2,3,4]},{t:"How often have you been unable to stop drinking once you started?",o:["Never","Less than monthly","Monthly","Weekly","Daily/almost daily"],v:[0,1,2,3,4]},{t:"How often have you failed to do what was expected because of drinking?",o:["Never","Less than monthly","Monthly","Weekly","Daily/almost daily"],v:[0,1,2,3,4]},{t:"How often have you needed a drink in the morning to get going?",o:["Never","Less than monthly","Monthly","Weekly","Daily/almost daily"],v:[0,1,2,3,4]},{t:"How often have you felt guilt or remorse after drinking?",o:["Never","Less than monthly","Monthly","Weekly","Daily/almost daily"],v:[0,1,2,3,4]},{t:"How often unable to remember what happened the night before due to drinking?",o:["Never","Less than monthly","Monthly","Weekly","Daily/almost daily"],v:[0,1,2,3,4]},{t:"Have you or someone else been injured as a result of your drinking?",o:["No","Yes, but not last year","Yes, during last year"],v:[0,2,4]},{t:"Has a health professional expressed concern about your drinking?",o:["No","Yes, but not last year","Yes, during last year"],v:[0,2,4]}],scoring:[{min:0,max:7,label:"Low Risk",color:"#27AE60"},{min:8,max:15,label:"Hazardous Drinking",color:"#F39C12"},{min:16,max:19,label:"Harmful Drinking",color:"#E67E22"},{min:20,max:40,label:"Probable Dependence",color:"#E74C3C"}]},
+  ocir:{id:"ocir",name:"OCI-R",fullName:"Obsessive-Compulsive Inventory – Revised",category:"OCD",color:"#9B59B6",bg:"#F5EEF8",items:18,options:["Not at all","A little","Moderately","A lot","Extremely"],values:[0,1,2,3,4],questions:["I have saved up so many things that they get in the way","I check things more often than necessary","I get upset if objects are not arranged properly","I feel compelled to count while I am doing things","I find it difficult to touch an object touched by strangers","I find it difficult to control my own thoughts","I collect things I don't need","I repeatedly check doors, windows, drawers, etc.","I get upset if others change the way I have arranged things","I feel I have to repeat certain numbers","I sometimes have to wash or clean myself simply because I feel contaminated","I am upset by unpleasant thoughts that come into my mind against my will","I avoid throwing things away because I am afraid I might need them","I repeatedly check gas and water taps and light switches","I need things to be arranged in a particular order","I feel that there are good and bad numbers","I wash my hands more often and longer than necessary","I frequently get nasty thoughts and have difficulty getting rid of them"],instructions:"Think about the past month. How much does each experience bother you?",scoring:[{min:0,max:20,label:"Sub-clinical",color:"#27AE60"},{min:21,max:72,label:"Clinical OCD Range",color:"#E74C3C"}]},
+  dass21:{id:"dass21",name:"DASS-21",fullName:"Depression Anxiety Stress Scales-21",category:"Multi-domain",color:"#16A085",bg:"#E8F8F5",items:21,options:["Did not apply at all","Applied to some degree","Applied to a considerable degree","Applied very much"],values:[0,1,2,3],questions:["I found it hard to wind down","I was aware of dryness of my mouth","I couldn't seem to experience any positive feeling at all","I experienced breathing difficulty","I found it difficult to work up the initiative to do things","I tended to over-react to situations","I experienced trembling (e.g., in the hands)","I felt that I was using a lot of nervous energy","I was worried about situations in which I might panic","I felt that I had nothing to look forward to","I found myself getting agitated","I found it difficult to relax","I felt down-hearted and blue","I was intolerant of anything that kept me from getting on","I felt I was close to panic","I was unable to become enthusiastic about anything","I felt I wasn't worth much as a person","I felt that I was rather touchy","I was aware of the action of my heart in the absence of physical exertion","I felt scared without any good reason","I felt that life was meaningless"],instructions:"Please rate the extent to which each statement applied to you over the past week.",scoring:[{min:0,max:4,label:"Normal",color:"#27AE60"},{min:5,max:6,label:"Mild",color:"#F39C12"},{min:7,max:10,label:"Moderate",color:"#E67E22"},{min:11,max:13,label:"Severe",color:"#E74C3C"},{min:14,max:42,label:"Extremely Severe",color:"#C0392B"}]}
+};
+const ALL_QS = Object.values(QDEFS);
+
+// ─── APP STATE ──────────────────────────────────────────────────────────
+let state = {
+  user: null,     // {name,email,plan:'free'|'pro',profession}
+  patients: [],   // [{id,name,dob,medicare,referral,notes,sessions:[]}]
+  currentSession: null,
+  currentAnswers: {},
+  stripeCard: null,
+  upgradeCard: null,
+  stripe: null
+};
+
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v));}catch{return null}}
+function save(){ls('mm_state',{user:state.user,patients:state.patients})}
+function load(){const d=ls('mm_state');if(d){state.user=d.user;state.patients=d.patients||[]}}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  load();
+  renderLandingQGrid();
+  renderSubPlans();
+  // Init Stripe (replace with your real publishable key)
+  try{state.stripe=Stripe('pk_test_51OExampleKeyReplaceWithYourRealStripePublishableKey');}catch(e){console.warn('Stripe not loaded - demo mode')}
+  if(state.user) enterApp();
+});
+
+function renderLandingQGrid(){
+  const g=document.getElementById('landing-q-grid');
+  g.innerHTML=ALL_QS.map(q=>`
+    <div class="q-card">
+      <div class="q-card-cat" style="color:${q.color}">${q.category}</div>
+      <div class="q-card-name">${q.name}</div>
+      <div class="q-card-full">${q.fullName}</div>
+      <div class="q-card-items" style="color:${q.color}">${q.items} items</div>
+    </div>
+  `).join('');
+}
+
+function renderSubPlans(){
+  document.getElementById('sub-plans-grid').innerHTML=`
+    <div class="pricing-card" style="text-align:center">
+      <div class="pricing-name">Free</div>
+      <div class="pricing-price">$0</div>
+      <div class="pricing-period">Always free</div>
+      <ul class="pricing-features" style="text-align:left">
+        <li>All 11 questionnaires</li>
+        <li>Basic scoring</li>
+        <li>Up to 3 patients</li>
+        <li class="locked">AI summaries</li>
+        <li class="locked">PDF export</li>
+        <li class="locked">Trend tracking</li>
+        <li class="locked">Unlimited patients</li>
+      </ul>
+      ${state.user?.plan==='free'?'<button class="btn btn-outline" style="width:100%" disabled>Current Plan</button>':'<button class="btn btn-outline" style="width:100%" onclick="downgradePlan()">Downgrade to Free</button>'}
+    </div>
+    <div class="pricing-card featured" style="text-align:center">
+      <div class="pricing-name">Pro</div>
+      <div class="pricing-price">$49<span style="font-size:18px;color:var(--sub)">/mo</span></div>
+      <div class="pricing-period">14-day free trial</div>
+      <ul class="pricing-features" style="text-align:left">
+        <li>Everything in Free</li>
+        <li>Unlimited patients</li>
+        <li>AI clinical summaries</li>
+        <li>PDF export</li>
+        <li>Longitudinal tracking</li>
+        <li>Remote patient links</li>
+        <li>Priority support</li>
+      </ul>
+      ${state.user?.plan==='pro'?'<button class="btn btn-primary" style="width:100%;background:var(--ok)" disabled>✓ Active Plan</button>':'<button class="btn btn-gold" style="width:100%" onclick="openUpgradeModal()">Upgrade to Pro</button>'}
+    </div>`;
+}
+
+// ─── AUTH ────────────────────────────────────────────────────────────────
+let selectedPlan='free';
+
+function showAuth(mode,plan){
+  if(plan) selectPlan(plan);
+  document.getElementById('auth-modal').classList.remove('hidden');
+  if(mode==='login'){
+    document.getElementById('auth-register').classList.add('hidden');
+    document.getElementById('auth-login').classList.remove('hidden');
+    document.getElementById('auth-title').textContent='Sign in to your account';
+    document.getElementById('auth-sub').textContent='Welcome back';
+  } else {
+    document.getElementById('auth-login').classList.add('hidden');
+    document.getElementById('auth-register').classList.remove('hidden');
+    document.getElementById('auth-title').textContent='Create your account';
+    document.getElementById('auth-sub').textContent='Join thousands of mental health clinicians';
+  }
+}
+
+function closeAuth(){document.getElementById('auth-modal').classList.add('hidden');}
+
+function selectPlan(plan){
+  selectedPlan=plan;
+  document.getElementById('plan-free').classList.toggle('selected',plan==='free');
+  document.getElementById('plan-pro').classList.toggle('selected',plan==='pro');
+  const ss=document.getElementById('stripe-section');
+  const btn=document.getElementById('reg-btn-text');
+  if(plan==='pro'){
+    ss.classList.remove('hidden');
+    btn.textContent='Start Pro — 14 Day Free Trial';
+    mountStripeCard('stripe-card-element','stripeCard');
+  } else {
+    ss.classList.add('hidden');
+    btn.textContent='Create Free Account';
+  }
+}
+
+function mountStripeCard(elId, stateKey){
+  if(!state.stripe) return;
+  if(state[stateKey]) return;
+  const elements=state.stripe.elements();
+  state[stateKey]=elements.create('card',{style:{base:{fontSize:'14px',color:'#1C2B3A',fontFamily:'DM Sans, system-ui'}}});
+  state[stateKey].mount('#'+elId);
+}
+
+async function handleRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const password=document.getElementById('reg-password').value;
+  const profession=document.getElementById('reg-profession').value;
+  if(!name||!email||!password||!profession){showToast('Please fill in all fields','error');return;}
+  if(password.length<8){showToast('Password must be at least 8 characters','error');return;}
+
+  const btn=document.getElementById('reg-btn');
+  const btnText=document.getElementById('reg-btn-text');
+  btn.disabled=true;
+  btnText.innerHTML='<span class="spinner"></span>';
+
+  if(selectedPlan==='pro' && state.stripe && state.stripeCard){
+    try{
+      const {paymentMethod,error}=await state.stripe.createPaymentMethod({type:'card',card:state.stripeCard,billing_details:{name,email}});
+      if(error){showToast(error.message,'error');btn.disabled=false;btnText.textContent='Start Pro — 14 Day Free Trial';return;}
+      // In production: send paymentMethod.id to your backend to create Stripe subscription
+      console.log('Stripe PaymentMethod created:',paymentMethod.id,'— send to backend to create subscription');
+    }catch(e){showToast('Card error. Please try again.','error');btn.disabled=false;btnText.textContent='Start Pro — 14 Day Free Trial';return;}
+  }
+
+  await new Promise(r=>setTimeout(r,900));
+  state.user={name,email,profession,plan:selectedPlan,joinedAt:new Date().toISOString()};
+  if(!state.patients) state.patients=[];
+  save();
+  closeAuth();
+  enterApp();
+  showToast(`Welcome, ${name.split(' ')[0]}! 🎉`,'success');
+}
+
+async function handleLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const password=document.getElementById('login-password').value;
+  if(!email||!password){showToast('Please enter email and password','error');return;}
+  document.getElementById('login-btn-text').innerHTML='<span class="spinner"></span>';
+  await new Promise(r=>setTimeout(r,800));
+  if(state.user && state.user.email===email){
+    closeAuth();enterApp();showToast('Welcome back!','success');
+  } else {
+    document.getElementById('login-btn-text').textContent='Sign In';
+    showToast('No account found with this email. Please register.','error');
+  }
+}
+
+function handleLogout(){
+  state.user=null; save();
+  document.getElementById('app-shell').classList.remove('active');
+  document.getElementById('app-shell').style.display='none';
+  document.getElementById('screen-landing').classList.add('active');
+  document.querySelector('.screen').style.display='';
+}
+
+// ─── ENTER APP ──────────────────────────────────────────────────────────
+function enterApp(){
+  document.getElementById('screen-landing').classList.remove('active');
+  document.getElementById('screen-landing').style.display='none';
+  const shell=document.getElementById('app-shell');
+  shell.style.display='flex';
+  shell.classList.add('active');
+  updateAppUI();
+  showPage('dashboard');
+}
+
+function updateAppUI(){
+  const u=state.user;
+  if(!u) return;
+  const initial=(u.name||'D')[0].toUpperCase();
+  document.getElementById('user-avatar').textContent=initial;
+  document.getElementById('user-name-chip').textContent=u.name.split(' ').slice(0,2).join(' ');
+  document.getElementById('welcome-name').textContent=u.name.split(' ')[0];
+  const isPro=u.plan==='pro';
+  document.getElementById('upgrade-pill').classList.toggle('hidden',isPro);
+  document.getElementById('dash-paywall').style.display=isPro?'none':'flex';
+  document.getElementById('billing-plan-name').textContent=isPro?'Pro':'Free';
+  document.getElementById('billing-plan-detail').textContent=isPro?'$49/month — Active':'Always free';
+  document.getElementById('billing-plan-tag').textContent=u.plan==='pro'?'Pro ⭐':'Free';
+  document.getElementById('billing-plan-tag').style.background=isPro?'linear-gradient(135deg,#C9973A,#E8B84B)':'#E8F8F5';
+  document.getElementById('billing-plan-tag').style.color=isPro?'#fff':'var(--teal)';
+  // Reports mask
+  document.getElementById('reports-mask').classList.toggle('hidden',isPro);
+  renderSubPlans();
+  renderStats();
+  renderRecentSessions();
+  renderPatientsTable();
+  populatePatientSelects();
+}
+
+function renderStats(){
+  const pts=state.patients||[];
+  const allSessions=pts.flatMap(p=>p.sessions||[]);
+  const allRisk=allSessions.flatMap(s=>Object.entries(s.completed||{}).filter(([id,d])=>hasRisk(id,d.answers)));
+  document.getElementById('stat-patients').textContent=pts.length;
+  document.getElementById('stat-sessions').textContent=allSessions.length;
+  document.getElementById('stat-risk').textContent=allRisk.length;
+  document.getElementById('stat-plan').textContent=state.user?.plan==='pro'?'Pro ⭐':'Free';
+  const isPro=state.user?.plan==='pro';
+  document.getElementById('stat-patients-limit').textContent=isPro?'Unlimited':`${pts.length}/3 used`;
+}
+
+// ─── PATIENTS ────────────────────────────────────────────────────────────
+function openAddPatient(){
+  const isPro=state.user?.plan==='pro';
+  const pts=state.patients||[];
+  if(!isPro && pts.length>=3){
+    document.getElementById('patient-paywall').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('add-patient-form').classList.toggle('hidden');
+}
+
+function savePatient(){
+  const name=document.getElementById('p-name').value.trim();
+  if(!name){showToast('Patient name required','error');return;}
+  const p={id:Date.now().toString(),name,dob:document.getElementById('p-dob').value,medicare:document.getElementById('p-medicare').value,referral:document.getElementById('p-referral').value,notes:document.getElementById('p-notes').value,sessions:[],addedAt:new Date().toISOString()};
+  state.patients.push(p);save();
+  document.getElementById('add-patient-form').classList.add('hidden');
+  ['p-name','p-dob','p-medicare','p-referral','p-notes'].forEach(id=>document.getElementById(id).value='');
+  renderPatientsTable();populatePatientSelects();renderStats();
+  showToast(`Patient "${name}" added`,'success');
+}
+
+function renderPatientsTable(){
+  const pts=state.patients||[];
+  const isPro=state.user?.plan==='pro';
+  document.getElementById('patient-count-label').textContent=isPro?`${pts.length} patients`:`${pts.length}/3 patients (Free plan)`;
+  document.getElementById('patient-paywall').classList.toggle('hidden',isPro||pts.length<3);
+  const tb=document.getElementById('patients-tbody');
+  if(!pts.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--sub)">No patients yet. Add your first patient.</td></tr>`;return;}
+  tb.innerHTML=pts.map(p=>{
+    const sessions=p.sessions||[];
+    const last=sessions[sessions.length-1];
+    const riskSessions=sessions.filter(s=>Object.entries(s.completed||{}).some(([id,d])=>hasRisk(id,d.answers)));
+    return `<tr>
+      <td style="font-weight:600">${p.name}</td>
+      <td>${p.dob||'—'}</td>
+      <td style="font-size:12px;color:var(--sub)">${p.referral||'—'}</td>
+      <td>${sessions.length}</td>
+      <td style="font-size:12px;color:var(--sub)">${last?fmtDate(last.startedAt):'—'}</td>
+      <td>${riskSessions.length>0?'<span class="tag tag-risk">⚠ Risk</span>':'<span style="color:var(--sub);font-size:12px">—</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="selectPatientForAssess('${p.id}')">Assess</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function selectPatientForAssess(id){
+  showPage('assess');
+  document.getElementById('assess-patient-select').value=id;
+}
+
+function populatePatientSelects(){
+  const pts=state.patients||[];
+  const opts='<option value="">— Select patient —</option>'+pts.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  ['assess-patient-select','report-patient-select'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=opts;
+  });
+}
+
+// ─── ASSESS ─────────────────────────────────────────────────────────────
+function renderAssessCatalogue(){
+  const isPro=state.user?.plan==='pro';
+  const c=document.getElementById('assess-q-catalogue');
+  c.innerHTML=ALL_QS.map(qd=>`
+    <div class="q-item" onclick="startQ('${qd.id}')" style="border-left:4px solid ${qd.color}">
+      <div class="q-item-top" style="background:${qd.bg}">
+        <span class="tag" style="background:${qd.color}20;color:${qd.color}">${qd.category}</span>
+        <div class="q-item-name">${qd.name}</div>
+        <div class="q-item-full">${qd.fullName}</div>
+      </div>
+      <div class="q-item-bottom">
+        <span class="q-item-count">${qd.items} items</span>
+        <span class="q-item-action" style="color:${qd.color}">Start →</span>
+      </div>
+    </div>`).join('');
+}
+
+let currentQDef=null;
+let currentAnswers={};
+
+function startQ(qId){
+  const patientId=document.getElementById('assess-patient-select').value;
+  if(!patientId){showToast('Please select a patient first','error');return;}
+  currentQDef=QDEFS[qId];
+  currentAnswers={};
+  renderRunner();
+  document.getElementById('assess-home').classList.add('hidden');
+  document.getElementById('assess-runner').classList.remove('hidden');
+  document.getElementById('assess-result').classList.add('hidden');
+}
+
+function getQItems(qd){
+  if(qd.customQ) return qd.customQ.map(q=>({text:q.t,opts:q.o,vals:q.v,domain:q.d}));
+  return qd.questions.map((q,i)=>({text:q,opts:qd.options,vals:qd.values,domain:null}));
+}
+
+function renderRunner(){
+  const qd=currentQDef;
+  const items=getQItems(qd);
+  const answered=Object.keys(currentAnswers).length;
+  const pct=Math.round((answered/items.length)*100);
+  const html=`
+    <div class="q-runner-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button class="btn btn-ghost btn-sm" style="color:rgba(255,255,255,.6)" onclick="backToAssessHome()">← Back</button>
+        <div style="text-align:center">
+          <div style="font-weight:700;font-size:16px;font-family:var(--font-serif)">${qd.name}</div>
+          <div style="font-size:12px;opacity:.55;font-family:var(--font-sans)">${answered}/${items.length} answered</div>
+        </div>
+        <div style="width:60px"></div>
+      </div>
+      <div class="q-runner-progress"><div class="q-runner-progress-fill" style="width:${pct}%;background:${qd.color}"></div></div>
+    </div>
+    <div style="margin-bottom:16px;background:${qd.bg};border:1px solid ${qd.color}20;border-radius:var(--r);padding:14px 18px;font-size:13px;color:#475569;line-height:1.6">
+      <strong>Instructions:</strong> ${qd.instructions}
+    </div>
+    ${items.map((item,idx)=>{
+      const sel=currentAnswers[idx];
+      const isRisk=qd.riskItems?.includes(idx)&&sel>0;
+      return `<div class="q-item-card ${sel!==undefined?'answered':''} ${isRisk?'risk-item':''}" id="q-card-${idx}">
+        ${item.domain?`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${qd.color};margin-bottom:5px">${item.domain}</div>`:''}
+        <div class="q-question-text">
+          <span class="q-question-num" style="color:${qd.color}">${idx+1}.</span>${item.text}
+          ${qd.riskItems?.includes(idx)?'<span class="tag tag-risk" style="margin-left:8px;font-size:10px">Risk item</span>':''}
+        </div>
+        <div class="q-options">
+          ${item.opts.map((opt,oi)=>`
+            <button class="q-opt-btn ${sel===item.vals[oi]?'selected':''}" onclick="recordAnswer(${idx},${item.vals[oi]})" style="${sel===item.vals[oi]?`background:${qd.color};border-color:${qd.color}`:''}">
+              ${opt}
+            </button>`).join('')}
+        </div>
+        ${isRisk?'<div style="margin-top:10px;font-size:12px;color:var(--danger);font-weight:600">⚠ This item requires immediate clinical attention</div>':''}
+      </div>`;
+    }).join('')}
+    <div style="text-align:center;padding:24px 0">
+      <button class="btn btn-primary btn-lg" ${answered<items.length?'disabled':''}
+        style="background:${answered>=items.length?qd.color:'#CBD5E1'};cursor:${answered>=items.length?'pointer':'not-allowed'}"
+        onclick="submitQ()">
+        ${answered>=items.length?'Submit & View Results →':`${items.length-answered} items remaining`}
+      </button>
+    </div>`;
+  document.getElementById('assess-runner').innerHTML=html;
+}
+
+function recordAnswer(idx,val){
+  currentAnswers[idx]=val;
+  renderRunner();
+  window.scrollTo(0,document.getElementById('assess-runner').offsetTop-80);
+}
+
+function backToAssessHome(){
+  document.getElementById('assess-home').classList.remove('hidden');
+  document.getElementById('assess-runner').classList.add('hidden');
+  document.getElementById('assess-result').classList.add('hidden');
+}
+
+function submitQ(){
+  const qd=currentQDef;
+  const items=getQItems(qd);
+  if(Object.keys(currentAnswers).length<items.length){showToast('Please answer all questions','error');return;}
+  const answers=items.map((_,i)=>currentAnswers[i]??0);
+  const score=answers.reduce((s,v)=>s+v,0);
+  const sev=getSeverity(qd,score);
+  const risk=hasRisk(qd.id,answers);
+  const patientId=document.getElementById('assess-patient-select').value;
+  const session={id:Date.now().toString(),qId:qd.id,startedAt:new Date().toISOString(),completed:{[qd.id]:{score,answers,completedAt:new Date().toISOString()}}};
+  const p=state.patients.find(x=>x.id===patientId);
+  if(p){p.sessions=p.sessions||[];p.sessions.push(session);}
+  save();renderStats();renderRecentSessions();renderPatientsTable();
+  renderResult(qd,score,sev,risk,answers);
+  document.getElementById('assess-runner').classList.add('hidden');
+  document.getElementById('assess-result').classList.remove('hidden');
+}
+
+function renderResult(qd,score,sev,risk,answers){
+  const maxScore=qd.scoring[qd.scoring.length-1].max;
+  const items=getQItems(qd);
+  let extra='';
+  if(qd.id==='dass21'){
+    const dep=[2,4,9,12,15,16,20].reduce((s,i)=>s+(answers[i]||0),0)*2;
+    const anx=[1,3,6,8,14,18,19].reduce((s,i)=>s+(answers[i]||0),0)*2;
+    const str=[0,5,7,10,11,13,17].reduce((s,i)=>s+(answers[i]||0),0)*2;
+    extra=`<div style="margin-top:16px;padding-top:16px;border-top:1px solid #F1F5F9">
+      <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Subscale Scores (×2)</div>
+      ${[['Depression',dep],['Anxiety',anx],['Stress',str]].map(([l,s])=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px"><span style="color:#334155">${l}</span><span style="font-weight:700">${s}</span></div>`).join('')}
+    </div>`;
+  }
+  if(qd.id==='ybocs'){
+    const obs=[0,1,2,3,4].reduce((s,i)=>s+(answers[i]||0),0);
+    const comp=[5,6,7,8,9].reduce((s,i)=>s+(answers[i]||0),0);
+    extra=`<div style="margin-top:16px;padding-top:16px;border-top:1px solid #F1F5F9">
+      <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Subscales</div>
+      ${[['Obsessions',obs+'/20'],['Compulsions',comp+'/20']].map(([l,s])=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px"><span>${l}</span><span style="font-weight:700">${s}</span></div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('assess-result').innerHTML=`
+    ${risk?`<div class="risk-alert"><div class="risk-alert-title">⚠ RISK ALERT — IMMEDIATE CLINICAL ATTENTION REQUIRED</div><div class="risk-alert-body">This patient has endorsed items related to suicidal ideation or self-harm. A comprehensive risk assessment and safety planning must be conducted immediately. Consider escalation protocols as per your clinical governance framework. If in crisis, contact emergency services or the patient's emergency contact.</div></div>`:''}
+    <div class="result-score-hero card" style="background:${qd.bg};border-color:${sev.color}40">
+      <div style="font-size:13px;color:var(--sub);margin-bottom:6px">${qd.fullName}</div>
+      <div class="result-score-num" style="color:${sev.color}">${score}</div>
+      <div style="font-size:13px;color:var(--sub)">out of ~${maxScore}</div>
+      <div class="result-score-label" style="color:${sev.color}">${sev.label}</div>
+    </div>
+    <div class="card card-pad" style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Score Ranges</div>
+      ${qd.scoring.map(r=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px;background:${score>=r.min&&score<=r.max?r.color+'15':'transparent'}">
+          <div style="width:8px;height:8px;border-radius:50%;background:${r.color};flex-shrink:0"></div>
+          <div style="flex:1;font-size:13px;color:#334155">${r.label}</div>
+          <div style="font-size:11px;color:var(--sub)">${r.min}–${r.max}</div>
+          ${score>=r.min&&score<=r.max?`<span class="tag" style="background:${r.color};color:#fff;font-size:9px">NOW</span>`:''}
+        </div>`).join('')}
+      ${extra}
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" onclick="startQ(currentQDef.id)">Retake</button>
+      <button class="btn btn-navy" onclick="backToAssessHome()">Back to Questionnaires</button>
+      <button class="btn btn-primary" onclick="showPage('reports')">View Full Report</button>
+    </div>`;
+}
+
+// ─── REPORTS ────────────────────────────────────────────────────────────
+function loadReportForPatient(){
+  const patientId=document.getElementById('report-patient-select').value;
+  if(!patientId){document.getElementById('report-body').innerHTML='<div style="padding:60px;text-align:center;color:var(--sub)">Select a patient to view their report.</div>';return;}
+  const p=state.patients.find(x=>x.id===patientId);
+  if(!p||!p.sessions?.length){document.getElementById('report-body').innerHTML='<div style="padding:60px;text-align:center;color:var(--sub)">No sessions found for this patient.</div>';return;}
+  const allCompleted={};
+  p.sessions.forEach(s=>Object.entries(s.completed||{}).forEach(([id,d])=>{if(!allCompleted[id]||new Date(d.completedAt)>new Date(allCompleted[id].completedAt))allCompleted[id]=d;}));
+  const riskItems=Object.entries(allCompleted).filter(([id,d])=>hasRisk(id,d.answers));
+  document.getElementById('report-body').innerHTML=`
+    <div style="background:var(--navy);color:#fff;border-radius:var(--r);padding:24px;margin-bottom:16px">
+      <div style="font-size:11px;opacity:.4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">MindMetrics Pro — Clinical Report</div>
+      <div style="font-family:var(--font-serif);font-size:22px;font-weight:600">Psychometric Assessment Report</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-top:16px">
+        ${[['Patient',p.name],['DOB',p.dob||'—'],['Clinician',state.user?.name||'—'],['Report Date',new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'})]].map(([l,v])=>`<div><div style="font-size:10px;opacity:.45;text-transform:uppercase;letter-spacing:.8px">${l}</div><div style="font-size:14px;font-weight:600;margin-top:3px">${v}</div></div>`).join('')}
+      </div>
+    </div>
+    ${riskItems.length?`<div class="risk-alert" style="margin-bottom:16px"><div class="risk-alert-title">⚠ RISK ALERT — Endorsed on: ${riskItems.map(([id])=>QDEFS[id]?.name).join(', ')}</div><div class="risk-alert-body">Risk items have been endorsed. Immediate risk assessment and safety planning required before any other intervention.</div></div>`:''}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+      ${Object.entries(allCompleted).map(([id,d])=>{const qd=QDEFS[id];if(!qd)return'';const sev=getSeverity(qd,d.score);const risk=hasRisk(id,d.answers);return`<div style="background:#fff;border:1px solid ${qd.color}30;border-left:4px solid ${sev.color};border-radius:var(--r);padding:14px;background:${qd.bg}"><div style="display:flex;justify-content:space-between"><span style="font-weight:700;font-size:15px">${qd.name}</span>${risk?'<span class="tag tag-risk">⚠</span>':''}</div><div style="font-size:10px;color:var(--sub)">${qd.category}</div><div style="display:flex;align-items:baseline;gap:6px;margin-top:6px"><span style="font-size:26px;font-weight:700;color:${sev.color}">${d.score}</span><span style="font-size:11px;color:${sev.color};font-weight:600">${sev.label}</span></div></div>`;}).join('')}
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="padding:16px 20px;background:#F8FAFC;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700;font-size:14px">AI-Assisted Clinical Summary</div><div style="font-size:11px;color:var(--sub);margin-top:2px">Generated by Claude · For clinician use only</div></div>
+        <button class="btn btn-primary btn-sm" onclick="generateAISummary('${p.id}')">Generate Summary</button>
+      </div>
+      <div id="ai-summary-body" style="padding:24px;min-height:120px;color:var(--sub);font-size:14px;text-align:center;line-height:1.6">
+        Click "Generate Summary" to create an AI-assisted clinical report with risk flags and recommendations.
+      </div>
+    </div>
+    <div style="background:#FFFBEB;border:1px solid #FCD34D;border-radius:8px;padding:12px 18px;font-size:11px;color:#92400E;line-height:1.6">
+      ⚠ These are validated screening instruments and do not constitute formal clinical diagnosis. All results must be interpreted within a comprehensive clinical assessment by a qualified mental health professional.
+    </div>`;
+}
+
+async function generateAISummary(patientId){
+  const p=state.patients.find(x=>x.id===patientId);
+  if(!p) return;
+  const allCompleted={};
+  p.sessions.forEach(s=>Object.entries(s.completed||{}).forEach(([id,d])=>{if(!allCompleted[id]||new Date(d.completedAt)>new Date(allCompleted[id].completedAt))allCompleted[id]=d;}));
+  const riskItems=Object.entries(allCompleted).filter(([id,d])=>hasRisk(id,d.answers));
+  const resultsText=Object.entries(allCompleted).map(([id,d])=>{const qd=QDEFS[id];if(!qd)return'';const sev=getSeverity(qd,d.score);return`${qd.fullName} (${qd.name}): Score ${d.score} — ${sev.label}${hasRisk(id,d.answers)?' [⚠ RISK ITEM ENDORSED]':''}`;}).join('\n');
+  const el=document.getElementById('ai-summary-body');
+  el.innerHTML='<div style="text-align:center;padding:40px 0"><div style="font-size:28px;animation:spin 1s linear infinite;display:inline-block;margin-bottom:12px">⟳</div><div style="color:var(--sub)">Generating clinical summary...</div></div>';
+  const prompt=`You are a senior clinical psychologist. Write a formal psychological assessment summary for a patient file.
+Patient: ${p.name}
+Clinician: ${state.user?.name||'Clinician'}
+Date: ${new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'})}
+
+PSYCHOMETRIC RESULTS:
+${resultsText}
+${riskItems.length?`\nRISK FLAGS: Risk items endorsed on ${riskItems.map(([id])=>QDEFS[id]?.name).join(', ')}. Include a prominent RISK ALERT section first.`:''}
+
+Write a structured report with these clearly labeled sections:
+1. RISK ALERT (only if risk items present — use urgent clinical language)
+2. PSYCHOMETRIC PROFILE — summarise all results clinically
+3. CLINICAL IMPRESSIONS — patterns, comorbidities, differential considerations
+4. RISK & PROTECTIVE FACTORS — suicidality risk, functional impairment
+5. RECOMMENDATIONS — specific next steps, urgency, treatment modalities
+
+Use formal clinical language, prose (no bullet points), specific severity references. Note these are screening instruments not formal diagnoses.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content?.map(b=>b.text||'').join('')||'Error generating summary.';
+    el.innerHTML=`<div style="font-family:var(--font-serif);font-size:15px;line-height:1.9;color:var(--text)">${text.split('\n\n').map(para=>{
+      const isRisk=para.includes('RISK ALERT');
+      return isRisk?`<div style="background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:14px;margin-bottom:14px;color:#7F1D1D;font-weight:600">${para}</div>`:`<p style="margin:0 0 16px">${para}</p>`;
+    }).join('')}</div>`;
+  }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">Error generating summary. Please check your connection and try again.</div>';}
+}
+
+// ─── RECENT SESSIONS ─────────────────────────────────────────────────────
+function renderRecentSessions(){
+  const allSessions=[];
+  (state.patients||[]).forEach(p=>(p.sessions||[]).forEach(s=>allSessions.push({...s,patientName:p.name})));
+  allSessions.sort((a,b)=>new Date(b.startedAt)-new Date(a.startedAt));
+  const recent=allSessions.slice(0,8);
+  const el=document.getElementById('recent-sessions-body');
+  if(!recent.length){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--sub);font-size:14px">No sessions yet. Start your first assessment.</div>';return;}
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:#FAFBFC">Patient</th><th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:#FAFBFC">Questionnaire</th><th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:#FAFBFC">Score</th><th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:#FAFBFC">Severity</th><th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:#FAFBFC">Date</th><th style="padding:10px 16px;border-bottom:1px solid var(--border);background:#FAFBFC"></th></tr></thead><tbody>
+  ${recent.map(s=>{
+    const entry=Object.entries(s.completed||{})[0];
+    if(!entry) return '';
+    const [id,d]=entry;const qd=QDEFS[id];if(!qd) return '';
+    const sev=getSeverity(qd,d.score);const risk=hasRisk(id,d.answers);
+    return `<tr style="border-bottom:1px solid #F5F7FA"><td style="padding:13px 16px;font-weight:600">${s.patientName}</td><td style="padding:13px 16px"><span style="font-size:13px;font-weight:700;color:${qd.color}">${qd.name}</span></td><td style="padding:13px 16px;font-weight:700;color:${sev.color}">${d.score}</td><td style="padding:13px 16px"><span style="font-size:12px;color:${sev.color};font-weight:600">${sev.label}</span></td><td style="padding:13px 16px;font-size:12px;color:var(--sub)">${fmtDate(s.startedAt)}</td><td style="padding:13px 16px">${risk?'<span class="tag tag-risk">⚠</span>':''}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+// ─── UPGRADE / STRIPE ────────────────────────────────────────────────────
+function openUpgradeModal(){
+  document.getElementById('upgrade-modal').classList.remove('hidden');
+  setTimeout(()=>mountStripeCard('stripe-card-upgrade','upgradeCard'),100);
+}
+function closeUpgrade(){document.getElementById('upgrade-modal').classList.add('hidden');}
+
+async function handleUpgrade(){
+  const btn=document.getElementById('upgrade-btn-text');
+  btn.innerHTML='<span class="spinner"></span>';
+  if(state.stripe && state.upgradeCard){
+    try{
+      const {paymentMethod,error}=await state.stripe.createPaymentMethod({type:'card',card:state.upgradeCard,billing_details:{name:state.user?.name,email:state.user?.email}});
+      if(error){showToast(error.message,'error');btn.textContent='Start Free Trial';return;}
+      // In production: POST paymentMethod.id to your backend → create Stripe subscription
+      console.log('Stripe PM for upgrade:',paymentMethod.id,'→ send to backend');
+    }catch(e){showToast('Card error. Please try again.','error');btn.textContent='Start Free Trial';return;}
+  }
+  await new Promise(r=>setTimeout(r,1000));
+  state.user.plan='pro';save();
+  closeUpgrade();
+  updateAppUI();
+  showToast('Welcome to Pro! All features unlocked. 🎉','success');
+}
+
+function downgradePlan(){
+  if(!confirm('Downgrade to Free? Pro features will be disabled.')) return;
+  state.user.plan='free';save();updateAppUI();showToast('Downgraded to Free plan.');
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────
+function showPage(page){
+  document.querySelectorAll('.app-page').forEach(el=>{el.classList.remove('active');el.classList.add('hidden')});
+  document.querySelectorAll('.topbar-link').forEach(el=>el.classList.remove('active'));
+  const pageEl=document.getElementById('page-'+page);
+  if(pageEl){pageEl.classList.remove('hidden');pageEl.classList.add('active');}
+  const navBtn=Array.from(document.querySelectorAll('.topbar-link')).find(el=>el.textContent.toLowerCase().includes(page==='dashboard'?'dash':page==='subscription'?'bill':page));
+  if(navBtn) navBtn.classList.add('active');
+  if(page==='assess'){renderAssessCatalogue();document.getElementById('assess-home').classList.remove('hidden');document.getElementById('assess-runner').classList.add('hidden');document.getElementById('assess-result').classList.add('hidden');}
+  if(page==='reports'){populatePatientSelects();}
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────
+function getSeverity(qd,score){for(const r of qd.scoring)if(score>=r.min&&score<=r.max)return r;return qd.scoring[qd.scoring.length-1];}
+function hasRisk(qId,answers=[]){const qd=QDEFS[qId];return !!(qd?.riskItems?.some(i=>(answers[i]??0)>0));}
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'});}catch{return '—';}}
+
+let toastTimer;
+function showToast(msg,type=''){
+  const existing=document.querySelector('.toast');if(existing)existing.remove();
+  clearTimeout(toastTimer);
+  const t=document.createElement('div');
+  t.className='toast'+(type?' '+type:'');
+  t.innerHTML=(type==='success'?'✓ ':type==='error'?'✕ ':'')+msg;
+  document.body.appendChild(t);
+  toastTimer=setTimeout(()=>t.remove(),3500);
+}
+</script>
+</body>
+</html>
