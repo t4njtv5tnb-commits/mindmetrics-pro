@@ -308,6 +308,47 @@ tr:hover td{background:#FAFBFD}
   .topbar-nav{display:none}
   .app-content{padding:16px}
 }
+
+/* ══════════════════════════════════════════
+   CONSULTATION OPERATOR
+══════════════════════════════════════════ */
+.consult-state{display:none}
+.consult-state.active{display:block}
+.energy-row{display:flex;gap:8px;align-items:center}
+.energy-orb{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;font-size:15px}
+.energy-orb:hover{border-color:var(--teal);transform:scale(1.1)}
+.energy-orb.lit{border-color:var(--teal);background:var(--teal);color:#fff}
+.session-timer-display{font-size:56px;font-weight:700;font-family:var(--font-serif);letter-spacing:-3px;line-height:1;color:var(--navy);transition:color .3s}
+.phase-bar-track{display:flex;gap:3px;height:6px;border-radius:4px;overflow:hidden}
+.phase-seg{flex:1;background:var(--border);transition:background .4s}
+.phase-seg.psActive{background:var(--teal)}
+.phase-seg.psDone{background:var(--ok)}
+.phase-chips-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pchip{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:700;background:var(--mist);border:1.5px solid var(--border);color:var(--sub);transition:all .18s;white-space:nowrap}
+.pchip.pcActive{background:var(--teal);color:#fff;border-color:var(--teal)}
+.pchip.pcDone{background:#ECFDF5;color:var(--ok);border-color:rgba(26,158,92,.3)}
+.notes-live-area{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-sans);font-size:14px;color:var(--text);background:#fff;resize:none;min-height:72px;outline:none;transition:border .15s}
+.notes-live-area:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.1)}
+.rfb{padding:7px 14px;border-radius:16px;border:1.5px solid rgba(217,64,64,.3);background:#FEF2F2;color:var(--danger);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:var(--font-sans);text-align:left}
+.rfb:hover,.rfb.flagged{background:var(--danger);color:#fff;border-color:var(--danger)}
+.grounding-box{background:linear-gradient(135deg,#0F1E2E,#162436);border-radius:12px;padding:18px 20px;color:#fff;display:none;align-items:center;gap:14px;animation:slideDown .3s ease;margin-bottom:16px}
+.grounding-box.show{display:flex}
+.soap-draft{width:100%;padding:16px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-serif);font-size:15px;line-height:1.8;color:var(--text);resize:vertical;min-height:300px;outline:none;transition:border .15s}
+.soap-draft:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.1)}
+.cpr{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .18s;margin-bottom:10px}
+.cpr:hover{border-color:var(--teal);box-shadow:0 2px 12px rgba(14,158,139,.1)}
+.cpr-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#2DD4BF);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;flex-shrink:0}
+.brief-dark{background:linear-gradient(160deg,#0F1E2E 0%,#1a3048 100%);border-radius:14px;padding:26px;color:#fff}
+.brief-sec{margin-bottom:18px}
+.brief-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:6px}
+.brief-txt{font-size:14px;line-height:1.7;color:rgba(255,255,255,.88)}
+.strength-inp{width:100%;padding:11px 14px;border:2px solid #D1FAE5;border-radius:10px;font-family:var(--font-sans);font-size:14px;color:var(--text);background:#F0FDF4;outline:none;transition:border .15s}
+.strength-inp:focus{border-color:var(--ok)}
+.apikey-row{display:flex;gap:8px;align-items:center}
+.apikey-input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-sans);font-size:13px;color:var(--text);background:#fff;outline:none;transition:border .15s}
+.apikey-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.1)}
+.consult-grid{display:grid;grid-template-columns:1fr 300px;gap:20px}
+@media(max-width:768px){.consult-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -685,6 +726,7 @@ tr:hover td{background:#FAFBFD}
       <button class="topbar-link" onclick="showPage('assess')">Assess</button>
       <button class="topbar-link" onclick="showPage('reports')">Reports</button>
       <button class="topbar-link" onclick="showPage('subscription')">Billing</button>
+      <button class="topbar-link" onclick="showPage('consult')" style="color:rgba(11,197,174,.8)">Consult</button>
     </div>
     <div class="topbar-right">
       <div class="user-chip">
@@ -851,6 +893,238 @@ tr:hover td{background:#FAFBFD}
       <div class="sub-plans" id="sub-plans-grid"></div>
     </div>
 
+    <!-- CONSULTATION OPERATOR -->
+    <div class="app-page hidden" id="page-consult">
+      <div class="welcome-banner" style="margin-bottom:20px">
+        <div>
+          <div class="welcome-title">Consultation Operator</div>
+          <div class="welcome-sub">AI-structured sessions — less burnout, more presence</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="consult-back-btn" onclick="exitConsult()" style="display:none;color:rgba(255,255,255,.6)">← Back to queue</button>
+      </div>
+
+      <!-- STATE: SELECT PATIENT -->
+      <div class="consult-state active" id="cs-select">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-pad" style="padding:16px 20px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.7px">AI features</div>
+                <div style="font-size:13px;color:var(--sub);margin-top:2px">Status: <span id="api-key-indicator" style="font-weight:600;color:var(--danger)">Not configured</span></div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="toggleApiSetup()">⚙ Configure API Key</button>
+            </div>
+            <div id="api-setup-panel" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+              <div style="font-size:13px;color:var(--sub);margin-bottom:10px;line-height:1.6">Your Anthropic API key enables AI pre-session briefs and SOAP note drafts. Stored locally in your browser only.</div>
+              <div class="apikey-row">
+                <input type="password" class="apikey-input" id="api-key-input" placeholder="sk-ant-api03-..." />
+                <button class="btn btn-primary btn-sm" onclick="saveApiKey()">Save</button>
+                <button class="btn btn-ghost btn-sm" onclick="clearApiKey()" style="color:var(--danger)">Clear</button>
+              </div>
+              <div id="api-key-status" style="font-size:12px;margin-top:6px;color:var(--sub)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-pad">
+            <div style="font-weight:700;font-size:15px;margin-bottom:16px">Select a patient to begin</div>
+            <div id="consult-queue"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE: PRE-SESSION BRIEF -->
+      <div class="consult-state" id="cs-brief">
+        <div class="brief-dark" style="margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+            <div id="brief-patient-av" class="cpr-av" style="width:52px;height:52px;font-size:18px">P</div>
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:3px">Pre-session brief</div>
+              <div id="brief-patient-name" style="font-size:20px;font-weight:700;font-family:var(--font-serif)">Patient</div>
+            </div>
+          </div>
+          <div class="brief-sec">
+            <div class="brief-lbl">Latest scores</div>
+            <div id="brief-scores" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          </div>
+          <div class="brief-sec">
+            <div class="brief-lbl">Clinical notes</div>
+            <div id="brief-notes" class="brief-txt" style="font-size:13px;max-height:56px;overflow:hidden;opacity:.75"></div>
+          </div>
+          <div class="brief-sec" style="margin-bottom:0">
+            <div class="brief-lbl" style="display:flex;align-items:center;gap:6px">
+              AI session brief
+              <span style="font-size:9px;padding:2px 6px;background:rgba(14,158,139,.3);border-radius:4px;color:rgba(255,255,255,.7)">claude</span>
+            </div>
+            <div id="brief-ai-content" class="brief-txt"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-pad">
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">Before you begin — how's your energy?</div>
+            <div style="font-size:12px;color:var(--sub);margin-bottom:14px">1 = depleted · 5 = fully resourced. Tracking this reveals burnout patterns over time.</div>
+            <div class="energy-row" id="energy-before-row">
+              <div class="energy-orb" data-energy-ctx="before" onclick="selectEnergy(1,'before')">😔</div>
+              <div class="energy-orb" data-energy-ctx="before" onclick="selectEnergy(2,'before')">😐</div>
+              <div class="energy-orb" data-energy-ctx="before" onclick="selectEnergy(3,'before')">🙂</div>
+              <div class="energy-orb" data-energy-ctx="before" onclick="selectEnergy(4,'before')">😊</div>
+              <div class="energy-orb" data-energy-ctx="before" onclick="selectEnergy(5,'before')">⚡</div>
+              <span id="energy-before-label" style="font-size:13px;color:var(--sub);margin-left:6px"></span>
+            </div>
+            <div id="pre-grounding-tip" style="display:none;margin-top:14px;background:#F0FDF4;border:1px solid #D1FAE5;border-radius:8px;padding:12px 14px;font-size:13px;color:#065F46;line-height:1.6"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="beginSession()">Begin Session →</button>
+      </div>
+
+      <!-- STATE: ACTIVE SESSION -->
+      <div class="consult-state" id="cs-active">
+        <div class="consult-grid">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-pad">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px">
+                  <div>
+                    <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Session time</div>
+                    <div class="session-timer-display" id="session-timer">00:00</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Phase</div>
+                    <div id="current-phase-label" style="font-size:16px;font-weight:700;color:var(--teal)">🌊 Opening</div>
+                  </div>
+                </div>
+                <div class="phase-bar-track" id="phase-bar"></div>
+                <div class="phase-chips-row" id="phase-list"></div>
+              </div>
+            </div>
+
+            <div class="grounding-box" id="grounding-pulse">
+              <div style="font-size:24px;flex-shrink:0">🌿</div>
+              <div id="grounding-msg" style="font-size:14px;line-height:1.6;color:rgba(255,255,255,.88);flex:1"></div>
+              <button style="background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:var(--font-sans)" onclick="dismissGrounding()">Got it</button>
+            </div>
+
+            <div class="card">
+              <div class="card-pad">
+                <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Quick notes — keywords only</div>
+                <div style="display:flex;gap:8px;margin-bottom:12px">
+                  <textarea class="notes-live-area" id="live-notes-area" rows="2" placeholder="Keyword or theme… Ctrl+Enter to add" onkeydown="handleNoteKey(event)"></textarea>
+                  <button class="btn btn-primary" onclick="addQuickNote()" style="align-self:flex-end;flex-shrink:0">Add</button>
+                </div>
+                <div id="notes-log"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-pad">
+                <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px">Risk flags — one tap to record</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <button class="rfb" data-risk="Suicidality" onclick="flagRisk('Suicidality')">⚠ Suicidality</button>
+                  <button class="rfb" data-risk="Self-harm" onclick="flagRisk('Self-harm')">⚠ Self-harm</button>
+                  <button class="rfb" data-risk="Crisis" onclick="flagRisk('Crisis')" style="background:#FFF1F1;border-color:#7F1D1D66;color:#7F1D1D">🔴 Crisis</button>
+                  <button class="rfb" data-risk="Dissociation" onclick="flagRisk('Dissociation')" style="background:#EDE9FE;border-color:rgba(108,92,231,.3);color:#6C5CE7">⚠ Dissociation</button>
+                  <button class="rfb" data-risk="Trauma disclosure" onclick="flagRisk('Trauma disclosure')" style="background:#FFFBEB;border-color:rgba(217,119,6,.3);color:var(--warn)">🔶 Trauma disclosure</button>
+                  <button class="rfb" data-risk="Substance use" onclick="flagRisk('Substance use')" style="background:#FFFBEB;border-color:rgba(217,119,6,.3);color:var(--warn)">⚠ Substance use</button>
+                </div>
+                <div id="risk-flag-log" style="margin-top:10px"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-pad">
+                <div style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.5">50-minute structured session. Grounding check at 15, 30 and 45 min.</div>
+                <button class="btn btn-navy" style="width:100%;justify-content:center" onclick="confirmEndSession()">End Session &amp; Write Notes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE: POST-SESSION -->
+      <div class="consult-state" id="cs-post">
+        <div class="consult-grid">
+          <div>
+            <div class="card">
+              <div class="card-pad">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <div style="font-weight:700;font-size:15px">SOAP Note Draft</div>
+                  <span style="font-size:11px;padding:3px 8px;background:#E8F8F5;color:var(--teal);border-radius:4px;font-weight:700">AI-drafted · edit freely</span>
+                </div>
+                <div style="font-size:12px;color:var(--sub);margin-bottom:14px">Generated from your session notes. Review, correct, and save.</div>
+                <div id="post-risk-summary"></div>
+                <textarea class="soap-draft" id="soap-note-area" placeholder="Generating SOAP note…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-pad" style="padding:16px">
+                <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Session summary</div>
+                <div style="display:flex;gap:16px">
+                  <div style="text-align:center;flex:1">
+                    <div style="font-size:28px;font-weight:700;font-family:var(--font-serif);color:var(--navy)" id="post-duration">—</div>
+                    <div style="font-size:11px;color:var(--sub)">minutes</div>
+                  </div>
+                  <div style="text-align:center;flex:1">
+                    <div style="font-size:28px;font-weight:700;font-family:var(--font-serif);color:var(--navy)" id="post-notes-count">—</div>
+                    <div style="font-size:11px;color:var(--sub)">notes</div>
+                  </div>
+                  <div style="text-align:center;flex:1">
+                    <div style="font-size:28px;font-weight:700;font-family:var(--font-serif);color:var(--danger)" id="post-flags-count">—</div>
+                    <div style="font-size:11px;color:var(--sub)">flags</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-pad" style="padding:16px">
+                <div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Your notes</div>
+                <div id="post-notes-summary" style="max-height:120px;overflow-y:auto"></div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-pad" style="padding:16px">
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">Your energy now?</div>
+                <div style="font-size:12px;color:var(--sub);margin-bottom:12px">Compare to how you felt before — watch for depletion patterns.</div>
+                <div class="energy-row" id="energy-after-row">
+                  <div class="energy-orb" data-energy-ctx="after" onclick="selectEnergy(1,'after')">😔</div>
+                  <div class="energy-orb" data-energy-ctx="after" onclick="selectEnergy(2,'after')">😐</div>
+                  <div class="energy-orb" data-energy-ctx="after" onclick="selectEnergy(3,'after')">🙂</div>
+                  <div class="energy-orb" data-energy-ctx="after" onclick="selectEnergy(4,'after')">😊</div>
+                  <div class="energy-orb" data-energy-ctx="after" onclick="selectEnergy(5,'after')">⚡</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-pad" style="padding:16px">
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">One strength you noticed</div>
+                <div style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.5">Name something this patient did well. A small act against compassion fatigue.</div>
+                <input type="text" class="strength-inp" id="strength-input" placeholder="e.g. showed real insight about their pattern…" />
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-pad" style="padding:16px;text-align:center">
+                <div id="recovery-timer"></div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="saveConsultation()">Save &amp; Return to Queue</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-consult -->
+
   </div><!-- /app-content -->
 </div><!-- /app-shell -->
 
@@ -877,8 +1151,9 @@ const ALL_QS = Object.values(QDEFS);
 
 // ─── APP STATE ──────────────────────────────────────────────────────────
 let state = {
-  user: null,     // {name,email,plan:'free'|'pro',profession}
-  patients: [],   // [{id,name,dob,medicare,referral,notes,sessions:[]}]
+  user: null,
+  patients: [],
+  consultations: [],
   currentSession: null,
   currentAnswers: {},
   stripeCard: null,
@@ -887,8 +1162,8 @@ let state = {
 };
 
 function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v));}catch{return null}}
-function save(){ls('mm_state',{user:state.user,patients:state.patients})}
-function load(){const d=ls('mm_state');if(d){state.user=d.user;state.patients=d.patients||[]}}
+function save(){ls('mm_state',{user:state.user,patients:state.patients,consultations:state.consultations})}
+function load(){const d=ls('mm_state');if(d){state.user=d.user;state.patients=d.patients||[];state.consultations=d.consultations||[]}}
 
 // ─── INIT ────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
@@ -1442,12 +1717,451 @@ function showPage(page){
   if(navBtn) navBtn.classList.add('active');
   if(page==='assess'){renderAssessCatalogue();document.getElementById('assess-home').classList.remove('hidden');document.getElementById('assess-runner').classList.add('hidden');document.getElementById('assess-result').classList.add('hidden');}
   if(page==='reports'){populatePatientSelects();}
+  if(page==='consult'){renderConsultQueue();}
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────
 function getSeverity(qd,score){for(const r of qd.scoring)if(score>=r.min&&score<=r.max)return r;return qd.scoring[qd.scoring.length-1];}
 function hasRisk(qId,answers=[]){const qd=QDEFS[qId];return !!(qd?.riskItems?.some(i=>(answers[i]??0)>0));}
 function fmtDate(iso){try{return new Date(iso).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'});}catch{return '—';}}
+
+// ─── CONSULTATION OPERATOR ────────────────────────────────────────────────────
+const PHASES=[
+  {name:'Opening',emoji:'🌊',minutes:5},
+  {name:'Exploration',emoji:'🔍',minutes:20},
+  {name:'Intervention',emoji:'💡',minutes:15},
+  {name:'Closure',emoji:'🌿',minutes:10}
+];
+const SESSION_MINS=PHASES.reduce((s,p)=>s+p.minutes,0);
+
+const GROUNDING_MSGS=[
+  "15 minutes in. One slow breath. Are you in the room, or merged with their feeling?",
+  "Halfway. Drop your shoulders. Their pain belongs to them — you're the guide, not the storm.",
+  "10 minutes left. You don't need to fix everything today. Presence is the intervention.",
+  "Ground check: feet on floor, body in chair. You are separate from what you just heard.",
+  "Almost done. Notice one small thing this person did well today. Let that in."
+];
+
+const ENERGY_LABELS=['','Depleted — honour this','Low — pace yourself','Steady — proceed mindfully','Good — you\'re resourced','Fully resourced ⚡'];
+const LOW_ENERGY_TIPS={
+  1:'You\'re showing up despite feeling depleted — that\'s already care. Take 3 slow breaths before you open the door. Set one intention: "I am the guide, not the storm."',
+  2:'Low energy today. Hydrate now, loosen your jaw and shoulders. Remind yourself: you don\'t need to fix everything in this session.'
+};
+
+let activeConsult=null;
+let recoveryInterval=null;
+
+function showConsultState(s){
+  document.querySelectorAll('.consult-state').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('cs-'+s);
+  if(el) el.classList.add('active');
+  const backBtn=document.getElementById('consult-back-btn');
+  if(backBtn) backBtn.style.display=s==='select'?'none':'';
+}
+
+function renderConsultQueue(){
+  updateApiKeyUI();
+  const pts=state.patients||[];
+  const el=document.getElementById('consult-queue');
+  if(!el) return;
+  if(!pts.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--sub);font-size:14px">No patients yet. Add patients in the Patients tab first.</div>';
+    return;
+  }
+  el.innerHTML=pts.map(p=>{
+    const sessions=p.sessions||[];
+    const allCompleted={};
+    sessions.forEach(s=>Object.entries(s.completed||{}).forEach(([id,d])=>{
+      if(!allCompleted[id]||new Date(d.completedAt)>new Date(allCompleted[id].completedAt)) allCompleted[id]=d;
+    }));
+    const riskFlags=Object.entries(allCompleted).filter(([id,d])=>hasRisk(id,d.answers));
+    const scoreChips=Object.entries(allCompleted).slice(0,3).map(([id,d])=>{
+      const qd=QDEFS[id];if(!qd)return'';
+      const sev=getSeverity(qd,d.score);
+      return `<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;background:${sev.color}22;color:${sev.color}">${qd.name}: ${sev.label}</span>`;
+    }).join('');
+    const consults=(p.consultations||[]).length;
+    const initials=p.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
+    return `<div class="cpr" onclick="startConsultBriefing('${p.id}')">
+      <div class="cpr-av">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:15px;color:var(--text)">${p.name}</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:2px">${sessions.length} assessment${sessions.length!==1?'s':''} · ${consults} consult${consults!==1?'s':''}</div>
+        ${scoreChips?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${scoreChips}</div>`:''}
+      </div>
+      ${riskFlags.length?'<span class="tag tag-risk">⚠ Risk</span>':''}
+      <div style="font-size:12px;color:var(--teal);font-weight:600;white-space:nowrap;flex-shrink:0">Start →</div>
+    </div>`;
+  }).join('');
+}
+
+async function startConsultBriefing(patientId){
+  const p=state.patients.find(x=>x.id===patientId);
+  if(!p) return;
+  activeConsult={
+    id:Date.now().toString(),
+    patientId,
+    date:new Date().toISOString(),
+    energyBefore:null,
+    energyAfter:null,
+    notes:[],
+    riskFlags:[],
+    soapNote:'',
+    patientStrength:'',
+    durationMinutes:0,
+    phase:0,
+    groundingTimers:[],
+    timerInterval:null,
+    sessionStartTime:null
+  };
+  showConsultState('brief');
+  const initials=p.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
+  document.getElementById('brief-patient-av').textContent=initials;
+  document.getElementById('brief-patient-name').textContent=p.name;
+  const allCompleted={};
+  (p.sessions||[]).forEach(s=>Object.entries(s.completed||{}).forEach(([id,d])=>{
+    if(!allCompleted[id]||new Date(d.completedAt)>new Date(allCompleted[id].completedAt)) allCompleted[id]=d;
+  }));
+  const riskFlagged=Object.entries(allCompleted).filter(([id,d])=>hasRisk(id,d.answers));
+  document.getElementById('brief-scores').innerHTML=Object.entries(allCompleted).map(([id,d])=>{
+    const qd=QDEFS[id];if(!qd)return'';
+    const sev=getSeverity(qd,d.score);
+    return `<span style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:12px;background:${sev.color}22;color:${sev.color}">${qd.name} ${d.score} — ${sev.label}${hasRisk(id,d.answers)?' ⚠':''}</span>`;
+  }).join('')||'<span style="color:rgba(255,255,255,.35);font-size:13px">No assessments on file</span>';
+  document.getElementById('brief-notes').textContent=p.notes||'No clinical notes recorded.';
+  document.querySelectorAll('[data-energy-ctx="before"]').forEach(el=>el.classList.remove('lit'));
+  document.getElementById('energy-before-label').textContent='';
+  document.getElementById('pre-grounding-tip').style.display='none';
+  const aiEl=document.getElementById('brief-ai-content');
+  const key=getApiKey();
+  if(!key){
+    aiEl.innerHTML='<div style="color:rgba(255,255,255,.5);font-size:13px;line-height:1.6">Configure your API key in the queue to enable AI session briefs. Review the scores and notes above to prepare.</div>';
+    return;
+  }
+  aiEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:13px"><span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> Generating brief…</div>';
+  const resultsText=Object.entries(allCompleted).map(([id,d])=>{
+    const qd=QDEFS[id];if(!qd)return'';
+    const sev=getSeverity(qd,d.score);
+    return `${qd.name}: ${d.score} (${sev.label})${hasRisk(id,d.answers)?' ⚠ RISK ITEM ENDORSED':''}`;
+  }).join('\n')||'No assessments completed yet.';
+  const riskLine=riskFlagged.length?`\nRISK ITEMS ENDORSED: ${riskFlagged.map(([id])=>QDEFS[id]?.name).join(', ')}`:'';
+  const prompt=`You are a clinical supervisor briefing a therapist before a session. The therapist is AuDHD and INFJ — they deeply empathise, absorb others' emotions, and need clear structure to protect themselves from burnout.
+
+Patient: ${p.name}
+Sessions to date: ${(p.sessions||[]).length}
+Clinical notes on file: ${p.notes||'None'}
+Latest psychometric scores:
+${resultsText}${riskLine}
+
+Write a concise pre-session brief with exactly 3 paragraphs, each beginning with its label on the same line:
+
+1. TODAY'S FOCUS — One or two clinical priorities for this session. What matters most right now.
+2. WATCH FOR — Key risk areas, avoidance patterns, or safety considerations. Include safety protocol reminder if risk items are endorsed.
+3. OPENING — One warm, open-ended question to begin the session with.
+
+2–3 sentences per section. Clinical but warm tone. Prose only, no bullet points.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const text=data.content?.map(b=>b.text||'').join('')||'';
+    if(text){
+      aiEl.innerHTML=text.split(/\n\n+/).filter(s=>s.trim()).map(para=>{
+        const m=para.match(/^(\d+)\.\s*([\w\s'']+?)\s*—\s*([\s\S]*)/);
+        if(m) return `<div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:5px">${m[2].trim()}</div><div style="font-size:14px;line-height:1.7">${m[3].trim()}</div></div>`;
+        return `<p style="margin:0 0 12px;font-size:14px;line-height:1.7">${para}</p>`;
+      }).join('');
+    } else {
+      aiEl.innerHTML='<div style="color:rgba(255,255,255,.5);font-size:13px">No response. Proceed with the data above.</div>';
+    }
+  }catch(e){
+    console.error('Briefing error:',e);
+    aiEl.innerHTML=`<div style="color:rgba(255,255,255,.5);font-size:13px;line-height:1.6">AI brief unavailable (${e.message||'check API key'}). Use the scores and notes above.</div>`;
+  }
+}
+
+function selectEnergy(n,ctx){
+  document.querySelectorAll(`[data-energy-ctx="${ctx}"]`).forEach((el,i)=>el.classList.toggle('lit',i<n));
+  if(ctx==='before'){
+    if(activeConsult) activeConsult.energyBefore=n;
+    document.getElementById('energy-before-label').textContent=ENERGY_LABELS[n]||'';
+    const tip=document.getElementById('pre-grounding-tip');
+    const msg=LOW_ENERGY_TIPS[n];
+    if(msg){tip.textContent=msg;tip.style.display='block';}
+    else{tip.style.display='none';}
+  } else {
+    if(activeConsult) activeConsult.energyAfter=n;
+  }
+}
+
+function beginSession(){
+  if(!activeConsult||!activeConsult.energyBefore){showToast('Set your energy level first','error');return;}
+  showConsultState('active');
+  activeConsult.sessionStartTime=Date.now();
+  activeConsult.phase=0;
+  document.getElementById('risk-flag-log').innerHTML='';
+  document.getElementById('notes-log').innerHTML='';
+  document.getElementById('live-notes-area').value='';
+  renderSessionPhases();
+  startSessionTimer();
+  [15,30,45].forEach((min,i)=>{
+    const t=setTimeout(()=>showGroundingPulse(i),min*60*1000);
+    activeConsult.groundingTimers.push(t);
+  });
+  setTimeout(()=>document.getElementById('live-notes-area')?.focus(),300);
+}
+
+function renderSessionPhases(){
+  const cur=activeConsult.phase;
+  document.getElementById('phase-bar').innerHTML=PHASES.map((p,i)=>`<div class="phase-seg${i<cur?' psDone':i===cur?' psActive':''}"></div>`).join('');
+  document.getElementById('phase-list').innerHTML=PHASES.map((p,i)=>`<div class="pchip${i<cur?' pcDone':i===cur?' pcActive':''}">${p.emoji} ${p.name} ${p.minutes}m</div>`).join('');
+}
+
+function startSessionTimer(){
+  const timerEl=document.getElementById('session-timer');
+  const phaseEl=document.getElementById('current-phase-label');
+  activeConsult.timerInterval=setInterval(()=>{
+    if(!activeConsult?.sessionStartTime) return;
+    const elapsed=Math.floor((Date.now()-activeConsult.sessionStartTime)/1000);
+    const mins=Math.floor(elapsed/60),secs=elapsed%60;
+    timerEl.textContent=`${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    let cum=0,curPhase=PHASES.length-1;
+    for(let i=0;i<PHASES.length;i++){cum+=PHASES[i].minutes*60;if(elapsed<cum){curPhase=i;break;}}
+    if(curPhase!==activeConsult.phase){activeConsult.phase=curPhase;renderSessionPhases();}
+    phaseEl.textContent=`${PHASES[curPhase].emoji} ${PHASES[curPhase].name}`;
+    const total=SESSION_MINS*60;
+    timerEl.style.color=elapsed>total+300?'var(--danger)':elapsed>total-300?'var(--warn)':'';
+  },1000);
+}
+
+function showGroundingPulse(idx){
+  document.getElementById('grounding-msg').textContent=GROUNDING_MSGS[idx%GROUNDING_MSGS.length];
+  document.getElementById('grounding-pulse').classList.add('show');
+}
+function dismissGrounding(){document.getElementById('grounding-pulse').classList.remove('show');}
+
+function handleNoteKey(e){if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();addQuickNote();}}
+
+function addQuickNote(){
+  const area=document.getElementById('live-notes-area');
+  const text=area.value.trim();
+  if(!text) return;
+  const elapsed=Math.floor((Date.now()-activeConsult.sessionStartTime)/1000);
+  activeConsult.notes.push({time:elapsed,text});
+  area.value='';
+  renderLiveNotes();
+  area.focus();
+}
+
+function renderLiveNotes(){
+  const el=document.getElementById('notes-log');
+  if(!el||!activeConsult.notes.length){if(el)el.innerHTML='';return;}
+  el.innerHTML='<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">'+activeConsult.notes.map(n=>{
+    const m=Math.floor(n.time/60),s=n.time%60;
+    return `<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #F5F7FA;font-size:13px"><span style="color:var(--teal);font-weight:700;min-width:40px;font-family:var(--font-serif)">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span><span>${n.text}</span></div>`;
+  }).join('')+'</div>';
+}
+
+function flagRisk(type){
+  if(!activeConsult?.sessionStartTime) return;
+  const elapsed=Math.floor((Date.now()-activeConsult.sessionStartTime)/1000);
+  activeConsult.riskFlags.push({time:elapsed,type});
+  const btn=document.querySelector(`[data-risk="${type}"]`);
+  if(btn){btn.classList.add('flagged');setTimeout(()=>btn.classList.remove('flagged'),700);}
+  const log=document.getElementById('risk-flag-log');
+  const m=Math.floor(elapsed/60),s=elapsed%60;
+  const div=document.createElement('div');
+  div.style.cssText='font-size:11px;padding:4px 8px;background:#FEF2F2;border-radius:6px;margin-bottom:4px;color:var(--danger);font-weight:600';
+  div.textContent=`⚠ ${type} @ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  log.appendChild(div);
+  showToast(`Flagged: ${type}`,'error');
+}
+
+function confirmEndSession(){
+  if(confirm('End session and move to SOAP note?')) endSession();
+}
+
+function endSession(){
+  if(activeConsult.timerInterval) clearInterval(activeConsult.timerInterval);
+  activeConsult.groundingTimers.forEach(t=>clearTimeout(t));
+  const elapsed=Math.floor((Date.now()-activeConsult.sessionStartTime)/1000);
+  activeConsult.durationMinutes=Math.round(elapsed/60);
+  showConsultState('post');
+  document.getElementById('post-duration').textContent=activeConsult.durationMinutes;
+  document.getElementById('post-notes-count').textContent=activeConsult.notes.length;
+  document.getElementById('post-flags-count').textContent=activeConsult.riskFlags.length;
+  const notesEl=document.getElementById('post-notes-summary');
+  notesEl.innerHTML=activeConsult.notes.length
+    ?activeConsult.notes.map(n=>`<div style="font-size:12px;padding:5px 0;border-bottom:1px solid #F5F7FA">${String(Math.floor(n.time/60)).padStart(2,'0')}:${String(n.time%60).padStart(2,'0')} — ${n.text}</div>`).join('')
+    :'<div style="color:var(--sub);font-size:13px">No notes captured.</div>';
+  document.getElementById('post-risk-summary').innerHTML=activeConsult.riskFlags.length
+    ?'<div style="background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:12px;margin-bottom:14px">'+activeConsult.riskFlags.map(f=>`<div style="font-size:13px;color:var(--danger);font-weight:600">⚠ ${f.type} flagged at ${String(Math.floor(f.time/60)).padStart(2,'0')}:${String(f.time%60).padStart(2,'0')}</div>`).join('')+'</div>'
+    :'';
+  document.querySelectorAll('[data-energy-ctx="after"]').forEach(el=>el.classList.remove('lit'));
+  document.getElementById('strength-input').value='';
+  startRecoveryTimer(5*60);
+  generateSOAPNote();
+}
+
+async function generateSOAPNote(){
+  const p=state.patients.find(x=>x.id===activeConsult.patientId);
+  if(!p) return;
+  const el=document.getElementById('soap-note-area');
+  el.value='Generating SOAP note…';
+  el.disabled=true;
+  const allCompleted={};
+  (p.sessions||[]).forEach(s=>Object.entries(s.completed||{}).forEach(([id,d])=>{
+    if(!allCompleted[id]||new Date(d.completedAt)>new Date(allCompleted[id].completedAt)) allCompleted[id]=d;
+  }));
+  const scoresText=Object.entries(allCompleted).map(([id,d])=>{
+    const qd=QDEFS[id];return qd?`${qd.name}: ${d.score} (${getSeverity(qd,d.score).label})`:'';
+  }).filter(Boolean).join(', ')||'None on file';
+  const riskText=activeConsult.riskFlags.length
+    ?`Risk flags raised during session: ${activeConsult.riskFlags.map(f=>f.type).join(', ')}.`
+    :'No risk flags raised during session.';
+  const key=getApiKey();
+  if(!key){
+    el.value=`S (Subjective):\n[Patient-reported mood, presenting concerns, and key themes from today's session]\n\nO (Objective):\nPatient presented for ${activeConsult.durationMinutes}-minute individual therapy. Scores on file: ${scoresText}. ${riskText}\n\nA (Assessment):\n[Clinical formulation and diagnostic impressions]\n\nP (Plan):\n[Next session goals, homework, referrals if any]`;
+    el.disabled=false;
+    return;
+  }
+  const notesText=activeConsult.notes.map(n=>`[${String(Math.floor(n.time/60)).padStart(2,'0')}:${String(n.time%60).padStart(2,'0')}] ${n.text}`).join('\n')||'No session notes captured.';
+  const prompt=`Write a clinical SOAP note for a therapy session. Draft quality — the therapist will edit it.
+
+Patient: ${p.name}
+Session duration: ${activeConsult.durationMinutes} minutes
+Psychometric scores on file: ${scoresText}
+${riskText}
+
+Therapist's real-time keyword notes:
+${notesText}
+
+Write exactly 4 labeled sections:
+S (Subjective): Patient-reported experience, mood, presenting concerns, key themes. 2–3 sentences.
+O (Objective): Clinician observations of affect, presentation, and engagement. Safety assessment if risk flags raised. 2–3 sentences.
+A (Assessment): Clinical formulation, diagnostic impressions, progress, risk summary. 2–3 sentences.
+P (Plan): Next session focus, any homework, referrals or safety plan if relevant. 2–3 sentences.
+
+Clinical prose. Under 250 words. Draft for editing.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const text=data.content?.map(b=>b.text||'').join('')||'';
+    el.value=text||'Error generating note — please write manually.';
+  }catch(e){
+    console.error('SOAP error:',e);
+    el.value=`S (Subjective):\n[Edit: patient-reported concerns from session]\n\nO (Objective):\n${activeConsult.durationMinutes}-minute individual session. ${scoresText}. ${riskText}\n\nA (Assessment):\n[Edit: clinical formulation]\n\nP (Plan):\n[Edit: next session plan]`;
+  }
+  el.disabled=false;
+}
+
+function startRecoveryTimer(seconds){
+  const el=document.getElementById('recovery-timer');
+  let remaining=seconds;
+  if(recoveryInterval) clearInterval(recoveryInterval);
+  const circ=(2*Math.PI*27).toFixed(1);
+  function tick(){
+    if(remaining<=0){
+      clearInterval(recoveryInterval);
+      el.innerHTML='<div style="color:var(--ok);font-weight:700;font-size:14px">Ready for next patient ✓</div>';
+      return;
+    }
+    const m=Math.floor(remaining/60),s=remaining%60;
+    const pct=((seconds-remaining)/seconds)*100;
+    const offset=(circ*(1-pct/100)).toFixed(1);
+    el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Recovery buffer</div>
+<div style="position:relative;width:68px;height:68px;margin:0 auto 8px">
+  <svg width="68" height="68" viewBox="0 0 68 68" style="transform:rotate(-90deg)">
+    <circle cx="34" cy="34" r="27" fill="none" stroke="var(--border)" stroke-width="5"/>
+    <circle cx="34" cy="34" r="27" fill="none" stroke="var(--ok)" stroke-width="5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+  </svg>
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--navy);font-family:var(--font-serif)">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</div>
+</div>
+<div style="font-size:12px;color:var(--sub)">Breathe. Drink water. Reset.</div>`;
+    remaining--;
+  }
+  tick();
+  recoveryInterval=setInterval(tick,1000);
+}
+
+function saveConsultation(){
+  if(!activeConsult) return;
+  const p=state.patients.find(x=>x.id===activeConsult.patientId);
+  if(!p) return;
+  activeConsult.soapNote=document.getElementById('soap-note-area')?.value||'';
+  activeConsult.patientStrength=document.getElementById('strength-input')?.value||'';
+  if(!state.consultations) state.consultations=[];
+  state.consultations.push({id:activeConsult.id,patientId:activeConsult.patientId,date:activeConsult.date,durationMinutes:activeConsult.durationMinutes,energyBefore:activeConsult.energyBefore,energyAfter:activeConsult.energyAfter,riskFlags:activeConsult.riskFlags,soapNote:activeConsult.soapNote,patientStrength:activeConsult.patientStrength,noteCount:activeConsult.notes.length});
+  if(!p.consultations) p.consultations=[];
+  p.consultations.push({id:activeConsult.id,date:activeConsult.date,duration:activeConsult.durationMinutes,soapNote:activeConsult.soapNote,riskFlags:activeConsult.riskFlags});
+  save();
+  if(recoveryInterval) clearInterval(recoveryInterval);
+  activeConsult=null;
+  showToast('Consultation saved','success');
+  showConsultState('select');
+  renderConsultQueue();
+}
+
+function exitConsult(){
+  if(activeConsult?.sessionStartTime){
+    if(!confirm('Exit consultation? Unsaved session data will be lost.')) return;
+  }
+  if(activeConsult?.timerInterval) clearInterval(activeConsult.timerInterval);
+  activeConsult?.groundingTimers?.forEach(t=>clearTimeout(t));
+  if(recoveryInterval) clearInterval(recoveryInterval);
+  activeConsult=null;
+  showConsultState('select');
+  renderConsultQueue();
+}
+
+function toggleApiSetup(){
+  const panel=document.getElementById('api-setup-panel');
+  const isHidden=panel.style.display==='none'||!panel.style.display;
+  panel.style.display=isHidden?'block':'none';
+  if(isHidden){
+    const existing=getApiKey();
+    document.getElementById('api-key-input').value=existing?'••••••••••••••••':'';
+    document.getElementById('api-key-status').textContent=existing?`Key configured (…${existing.slice(-4)})`:'No key set';
+  }
+}
+
+function saveApiKey(){
+  const val=document.getElementById('api-key-input').value.trim();
+  if(!val||val.startsWith('•')){showToast('Enter a valid API key','error');return;}
+  if(!val.startsWith('sk-ant-')){showToast('Anthropic keys start with sk-ant-','error');return;}
+  try{localStorage.setItem('mm_apikey',val);}catch(e){showToast('Could not save key','error');return;}
+  document.getElementById('api-key-input').value='••••••••••••••••';
+  document.getElementById('api-key-status').textContent=`Saved (…${val.slice(-4)})`;
+  updateApiKeyUI();
+  showToast('API key saved','success');
+}
+
+function clearApiKey(){
+  localStorage.removeItem('mm_apikey');
+  document.getElementById('api-key-input').value='';
+  document.getElementById('api-key-status').textContent='Key cleared';
+  updateApiKeyUI();
+  showToast('API key cleared');
+}
+
+function getApiKey(){try{return localStorage.getItem('mm_apikey')||'';}catch{return '';}}
+
+function updateApiKeyUI(){
+  const key=getApiKey();
+  const indicator=document.getElementById('api-key-indicator');
+  if(!indicator) return;
+  if(key){indicator.textContent=`Active (sk-…${key.slice(-4)})`;indicator.style.color='var(--ok)';}
+  else{indicator.textContent='Not configured — AI features disabled';indicator.style.color='var(--danger)';}
+}
 
 let toastTimer;
 function showToast(msg,type=''){
