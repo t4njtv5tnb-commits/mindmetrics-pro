@@ -387,6 +387,13 @@ tr:hover td{background:#FAFBFD}
 .learn-pane .layer-name{font-family:var(--font-serif);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:-.2px}
 .learn-pane .subhead{font-weight:700;color:var(--navy);font-size:15px;letter-spacing:.4px;text-transform:uppercase;margin:20px 0 8px}
 .learn-pane pre.ascii{font-family:'Courier New',ui-monospace,monospace;font-size:13.5px;line-height:1.5;background:#FFFDF8;border:1px solid #E7DFD0;border-radius:10px;padding:14px 16px;margin:12px 0;overflow-x:auto;color:#3A342A;white-space:pre}
+/* diagrams (Mermaid → SVG) */
+.learn-pane pre.mermaid{color:transparent;position:relative;min-height:48px;margin:14px 0;border:1px dashed #E7DFD0;border-radius:12px;background:#FFFDF8;overflow:hidden}
+.learn-pane pre.mermaid::after{content:'◌ drawing diagram…';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--sub);font-family:var(--font-sans);font-size:13px}
+.learn-pane figure.mermaid-svg{margin:16px 0;padding:16px;background:#FFFDF8;border:1px solid #E7DFD0;border-radius:12px;overflow-x:auto;text-align:center}
+.learn-pane figure.mermaid-svg svg{max-width:100%;height:auto;font-family:var(--font-sans)!important}
+.learn-pane pre.diagram-fallback{color:#5A5344}
+.learn-pane pre.diagram-fallback::before{content:'◫ diagram (connect to the internet to render)';display:block;font-family:var(--font-sans);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
 .learn-pane .callout{background:#FFF6E4;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 18px;margin:20px 0;font-size:16px}
 .learn-pane .callout .callout-t{font-weight:700;color:var(--gold);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
 .learn-pane .qs{background:#EDF6F4;border:1px solid #C7E7E1;border-radius:12px;padding:16px 20px;margin:20px 0}
@@ -1252,6 +1259,8 @@ tr:hover td{background:#FAFBFD}
 <!-- ══════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════ -->
+<!-- Mermaid: renders concept maps, flowcharts & charts in the Learning Companion. Loads from CDN; if blocked, diagrams fall back to a readable code box. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js"></script>
 <script>
 // ─── QUESTIONNAIRE DATA ─────────────────────────────────────────────────
 const QDEFS = {
@@ -1292,8 +1301,30 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderSubPlans();
   // Init Stripe (replace with your real publishable key)
   try{state.stripe=Stripe('pk_test_51OExampleKeyReplaceWithYourRealStripePublishableKey');}catch(e){console.warn('Stripe not loaded - demo mode')}
+  initMermaid();
   if(state.user) enterApp();
 });
+
+function initMermaid(){
+  if(!window.mermaid) return;
+  try{
+    window.mermaid.initialize({
+      startOnLoad:false,
+      securityLevel:'strict',
+      theme:'base',
+      fontFamily:"'DM Sans', system-ui, sans-serif",
+      themeVariables:{
+        primaryColor:'#EDF6F4', primaryTextColor:'#1C2B3A', primaryBorderColor:'#0E9E8B',
+        lineColor:'#4A5E72', secondaryColor:'#FFF6E4', tertiaryColor:'#FBF7EF',
+        fontSize:'15px', mainBkg:'#EDF6F4', nodeBorder:'#0E9E8B',
+        clusterBkg:'#FBF7EF', clusterBorder:'#E7DFD0', titleColor:'#0F1E2E',
+        pie1:'#0E9E8B', pie2:'#C9973A', pie3:'#0F1E2E', pie4:'#4A5E72', pie5:'#0BC5AE', pie6:'#D97706'
+      },
+      mindmap:{ padding:12 },
+      flowchart:{ curve:'basis', htmlLabels:true, padding:14 }
+    });
+  }catch(e){console.warn('Mermaid init failed',e);}
+}
 
 function renderLandingQGrid(){
   const g=document.getElementById('landing-q-grid');
@@ -2293,10 +2324,15 @@ const LEARN_SCAFFOLD=`You are my learning companion. I am a GP with AuDHD, dysle
 FORMATTING RULES (dyslexia):
 - Short lines. One idea per line.
 - Bold the single key word in each concept using **double asterisks**, nothing more.
-- Every abstract idea gets (a) a concrete analogy and (b) a simple ASCII diagram.
-- Wrap every ASCII diagram in a triple-backtick code fence so it renders in a fixed-width box.
+- Every abstract idea gets (a) a concrete analogy and (b) a picture.
 - Define every Latin/Greek/technical term in plain words the first time it appears.
 - No walls of text. Use whitespace generously (blank lines between ideas).
+
+PICTURES — draw REAL diagrams with Mermaid, not ASCII art. Put each diagram in a fenced code block that starts with \`\`\`mermaid and ends with \`\`\`. Choose the right kind:
+- Processes, feedback loops, thresholds, cause→effect → use "flowchart TD" (or LR). Show arrows and loops.
+- How a concept CONNECTS to related ideas → use "mindmap" with the concept at the centre and branches to its parts and to neighbouring concepts I likely already know.
+- Proportions, risk, or "how much of X" → use a "pie" chart. Trends or dose/response over a range → use "xychart-beta".
+Rules for every diagram: keep each node label 2-4 plain words (no jargon), 4-10 nodes max, no markdown or parentheses inside node labels, no semicolons inside labels. Prefer one clear diagram over a busy one.
 
 TEACH IN THIS ORDER (write each heading on its own line, exactly as shown):
 1. WHY IT EXISTS (evolutionary lens)
@@ -2304,9 +2340,10 @@ TEACH IN THIS ORDER (write each heading on its own line, exactly as shown):
 2. FIRST PRINCIPLES (strip it down)
    What are the irreducible parts? The 2-4 things that, if you remove them, it stops being this thing. State them as plainly as possible.
 3. BUILD IT BACK UP (emergence)
-   How do those simple parts interact to create the real, messy behaviour I observe in practice? Show the feedback loops, thresholds, tipping points. Draw the relationships as an ASCII map.
+   How do those simple parts interact to create the real, messy behaviour I observe in practice? Show the feedback loops, thresholds, tipping points. Draw the relationships as a Mermaid flowchart.
 4. ANCHOR IT (analogy + picture)
-   Give me ONE central analogy I'll remember, plus a labelled ASCII diagram of the whole thing.
+   Give me ONE central analogy I'll remember, plus a Mermaid MINDMAP that puts the concept at the centre and branches out to its parts AND to related concepts (the connections).
+   If a number, proportion or trend matters here, add a Mermaid pie or xychart too.
 5. CLINICAL / REAL HOOK (optional, if relevant)
    One line: where I'll actually meet this as a GP.
 
@@ -2365,13 +2402,14 @@ async function teachTopic(){
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2600,system:LEARN_SCAFFOLD,messages:[{role:'user',content:`Teach me: ${topic}`}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3400,system:LEARN_SCAFFOLD,messages:[{role:'user',content:`Teach me: ${topic}`}]})
     });
     const data=await res.json();
     if(data.error) throw new Error(data.error.message);
     const text=data.content?.map(b=>b.text||'').join('')||'';
     if(!text){out.innerHTML='<div class="learn-pane">No response came back. Try again, or rephrase the topic.</div>';return;}
     out.innerHTML=`<div class="learn-pane">${renderLesson(text)}</div>`;
+    renderDiagrams(out);
     document.getElementById('learn-clear-btn').style.display='';
     saveLesson(topic,text);
   }catch(e){
@@ -2390,9 +2428,16 @@ function renderLesson(text){
   const parts=text.split(/```/);
   let html='';
   parts.forEach((seg,i)=>{
-    if(i%2===1){ // fenced ASCII diagram
-      const body=seg.replace(/^[a-zA-Z0-9_-]*\n/,'').replace(/\s+$/,'');
-      html+=`<pre class="ascii">${escapeHtmlL(body)}</pre>`;
+    if(i%2===1){ // fenced code block
+      const langMatch=seg.match(/^([a-zA-Z0-9_-]+)\r?\n/);
+      const lang=langMatch?langMatch[1].toLowerCase():'';
+      const body=seg.replace(/^[a-zA-Z0-9_-]*\r?\n/,'').replace(/\s+$/,'');
+      if(lang==='mermaid'){
+        // Real diagram — rendered to SVG after insertion by renderDiagrams().
+        html+=`<pre class="mermaid">${escapeHtmlL(body)}</pre>`;
+      }else{
+        html+=`<pre class="ascii">${escapeHtmlL(body)}</pre>`;
+      }
       return;
     }
     const lines=seg.split('\n');
@@ -2422,6 +2467,43 @@ function renderLesson(text){
     closeCallout();
   });
   return html;
+}
+
+// Turn each <pre class="mermaid"> into a real SVG diagram. Falls back to a
+// readable code box if Mermaid isn't loaded or a diagram won't parse.
+let _mmdSeq=0;
+async function renderDiagrams(root){
+  const nodes=Array.from((root||document).querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  const asFallback=(n)=>{
+    const pre=document.createElement('pre');
+    pre.className='ascii diagram-fallback';
+    pre.textContent=n.textContent;
+    n.replaceWith(pre);
+  };
+  if(!window.mermaid || typeof window.mermaid.render!=='function'){
+    nodes.forEach(asFallback);
+    return;
+  }
+  for(const n of nodes){
+    const code=(n.textContent||'').trim();
+    if(!code){n.remove();continue;}
+    const id='mmd-'+(Date.now())+'-'+(_mmdSeq++);
+    try{
+      const out=await window.mermaid.render(id,code);
+      const svg=(out && out.svg)?out.svg:out;
+      const wrap=document.createElement('figure');
+      wrap.className='mermaid-svg';
+      wrap.innerHTML=svg;
+      n.replaceWith(wrap);
+    }catch(e){
+      console.warn('Diagram render failed:',e);
+      // Mermaid may inject a stray error node into <body> — clean it up.
+      const orphan=document.getElementById(id);if(orphan)orphan.remove();
+      const err=document.querySelector('#d'+id);if(err)err.remove();
+      asFallback(n);
+    }
+  }
 }
 
 function clearLesson(){
@@ -2455,9 +2537,11 @@ function renderLearnHistory(){
 function openLesson(i){
   const hist=ls('mm_learn')||[];const h=hist[i];if(!h) return;
   document.getElementById('learn-topic').value=h.topic;
-  document.getElementById('learn-output').innerHTML=`<div class="learn-pane">${renderLesson(h.text)}</div>`;
+  const outEl=document.getElementById('learn-output');
+  outEl.innerHTML=`<div class="learn-pane">${renderLesson(h.text)}</div>`;
+  renderDiagrams(outEl);
   document.getElementById('learn-clear-btn').style.display='';
-  document.getElementById('learn-output').scrollIntoView({behavior:'smooth',block:'start'});
+  outEl.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function deleteLesson(i){
   let hist=ls('mm_learn')||[];hist.splice(i,1);ls('mm_learn',hist);renderLearnHistory();
