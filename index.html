@@ -359,6 +359,48 @@ tr:hover td{background:#FAFBFD}
 .apikey-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.1)}
 .consult-grid{display:grid;grid-template-columns:1fr 300px;gap:20px}
 @media(max-width:768px){.consult-grid{grid-template-columns:1fr}}
+
+/* ── LEARNING COMPANION ── */
+.learn-hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:16px;padding:26px 28px;color:#fff;margin-bottom:20px}
+.learn-hero h2{font-family:var(--font-serif);font-size:26px;font-weight:600;letter-spacing:-.3px;margin-bottom:6px}
+.learn-hero p{color:rgba(255,255,255,.6);font-size:14px;line-height:1.6;max-width:640px}
+.learn-tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--teal2);background:rgba(11,197,174,.12);padding:4px 10px;border-radius:20px;margin-bottom:12px}
+.learn-ask{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+.learn-ask label{display:block;font-size:13px;font-weight:600;color:var(--slate);margin-bottom:8px}
+.learn-input{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:12px;font-family:var(--font-sans);font-size:16px;color:var(--text);background:#fff;outline:none;transition:border .15s;resize:vertical;min-height:52px;line-height:1.5}
+.learn-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,158,139,.1)}
+.learn-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.learn-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.learn-chip{font-size:12.5px;font-weight:500;color:var(--slate);background:var(--mist);border:1px solid var(--border);border-radius:20px;padding:6px 13px;cursor:pointer;transition:all .15s}
+.learn-chip:hover{border-color:var(--teal);color:var(--teal);background:#fff}
+.learn-hint{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.6}
+
+/* reading pane — dyslexia-first */
+.learn-pane{background:#FBF7EF;border:1px solid #E7DFD0;border-radius:16px;padding:30px 34px;box-shadow:var(--shadow-sm);color:#2A2620;font-size:16.5px;line-height:1.85;max-width:66ch;margin:0 auto}
+@media(max-width:768px){.learn-pane{padding:22px 18px;font-size:16px}}
+.learn-pane .ln{margin:0 0 2px}
+.learn-pane .sp{height:14px}
+.learn-pane strong{font-weight:700;color:var(--teal)}
+.learn-pane .layer{display:flex;align-items:center;gap:12px;margin:30px 0 14px}
+.learn-pane .layer:first-child{margin-top:4px}
+.learn-pane .layer-num{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;font-family:var(--font-sans)}
+.learn-pane .layer-name{font-family:var(--font-serif);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:-.2px}
+.learn-pane .subhead{font-weight:700;color:var(--navy);font-size:15px;letter-spacing:.4px;text-transform:uppercase;margin:20px 0 8px}
+.learn-pane pre.ascii{font-family:'Courier New',ui-monospace,monospace;font-size:13.5px;line-height:1.5;background:#FFFDF8;border:1px solid #E7DFD0;border-radius:10px;padding:14px 16px;margin:12px 0;overflow-x:auto;color:#3A342A;white-space:pre}
+.learn-pane .callout{background:#FFF6E4;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 18px;margin:20px 0;font-size:16px}
+.learn-pane .callout .callout-t{font-weight:700;color:var(--gold);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.learn-pane .qs{background:#EDF6F4;border:1px solid #C7E7E1;border-radius:12px;padding:16px 20px;margin:20px 0}
+.learn-pane .qs .callout-t{color:var(--teal);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.learn-loading{display:flex;align-items:center;gap:12px;color:var(--slate);font-size:14px;padding:24px;justify-content:center}
+.learn-spin{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
+.learn-history{margin-top:24px}
+.learn-history h4{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--sub);margin-bottom:10px}
+.learn-hist-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.learn-hist-item:hover{border-color:var(--teal);box-shadow:var(--shadow-sm)}
+.learn-hist-topic{font-size:14px;font-weight:600;color:var(--text)}
+.learn-hist-date{font-size:11px;color:var(--sub)}
+.learn-hist-del{background:transparent;border:none;color:var(--sub);font-size:15px;padding:2px 6px;border-radius:6px}
+.learn-hist-del:hover{color:var(--danger);background:var(--mist)}
 </style>
 </head>
 <body>
@@ -737,6 +779,7 @@ tr:hover td{background:#FAFBFD}
       <button class="topbar-link" onclick="showPage('reports')">Reports</button>
       <button class="topbar-link" onclick="showPage('subscription')">Billing</button>
       <button class="topbar-link" onclick="showPage('consult')" style="color:rgba(11,197,174,.8)">Consult</button>
+      <button class="topbar-link" onclick="showPage('learn')" style="color:rgba(201,151,58,.9)">Learn</button>
     </div>
     <div class="topbar-right">
       <div class="user-chip">
@@ -1135,6 +1178,53 @@ tr:hover td{background:#FAFBFD}
 
     </div><!-- /page-consult -->
 
+    <!-- LEARNING COMPANION -->
+    <div class="app-page hidden" id="page-learn">
+      <div class="learn-hero">
+        <div class="learn-tag">📚 Learning Companion</div>
+        <h2>Teach me anything — my way</h2>
+        <p>Bring any topic, concept, drug, disease, law, or idea from a book. I'll teach it in five layers — why it exists, first principles, how it builds up, one analogy you'll remember, and where you'll meet it as a GP. Short lines. Plain words. A picture for every idea.</p>
+      </div>
+
+      <div class="learn-ask">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-size:13px;color:var(--sub)">AI status: <span id="learn-api-indicator" style="font-weight:600;color:var(--danger)">Not configured</span></div>
+          <button class="btn btn-outline btn-sm" onclick="toggleLearnApi()">⚙ Configure API Key</button>
+        </div>
+        <div id="learn-api-panel" style="display:none;margin:8px 0 16px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="font-size:13px;color:var(--sub);margin-bottom:10px;line-height:1.6">Your Anthropic API key powers the lessons. Stored locally in your browser only — it never leaves your device except to call Anthropic directly.</div>
+          <div class="apikey-row">
+            <input type="password" class="apikey-input" id="learn-api-input" placeholder="sk-ant-api03-..." />
+            <button class="btn btn-primary btn-sm" onclick="saveLearnApiKey()">Save</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearApiKey();updateLearnApiUI();" style="color:var(--danger)">Clear</button>
+          </div>
+          <div id="learn-api-status" style="font-size:12px;margin-top:6px;color:var(--sub)"></div>
+        </div>
+
+        <label for="learn-topic">What do you want to understand?</label>
+        <textarea class="learn-input" id="learn-topic" placeholder="e.g. HbA1c · the renin–angiotensin system · Bayes' theorem · Chapter 3 of Thinking, Fast and Slow · SSRIs · the Mental Capacity Act"></textarea>
+        <div class="learn-chips" id="learn-chips">
+          <span class="learn-chip" onclick="learnChip(this)">The vagus nerve</span>
+          <span class="learn-chip" onclick="learnChip(this)">Beta-blockers</span>
+          <span class="learn-chip" onclick="learnChip(this)">Type 2 diabetes</span>
+          <span class="learn-chip" onclick="learnChip(this)">Bayesian reasoning</span>
+          <span class="learn-chip" onclick="learnChip(this)">The Krebs cycle</span>
+        </div>
+        <div class="learn-actions">
+          <button class="btn btn-primary btn-lg" id="learn-go-btn" onclick="teachTopic()">✨ Teach me this</button>
+          <button class="btn btn-outline" id="learn-clear-btn" onclick="clearLesson()" style="display:none">New topic</button>
+        </div>
+        <div class="learn-hint">Tip: if a topic is huge (e.g. "cardiology"), narrow it a little and I'll go deeper. I'll ask one clarifying question only if I truly need to.</div>
+      </div>
+
+      <div id="learn-output"></div>
+
+      <div class="learn-history" id="learn-history" style="display:none">
+        <h4>Past lessons</h4>
+        <div id="learn-history-list"></div>
+      </div>
+    </div><!-- /page-learn -->
+
   </div><!-- /app-content -->
 
   <!-- Mobile bottom nav -->
@@ -1151,8 +1241,8 @@ tr:hover td{background:#FAFBFD}
     <button class="mobile-nav-btn" onclick="showPage('assess')">
       <div class="mnav-icon">📋</div>Assess
     </button>
-    <button class="mobile-nav-btn" onclick="showPage('reports')">
-      <div class="mnav-icon">📄</div>Reports
+    <button class="mobile-nav-btn" onclick="showPage('learn')">
+      <div class="mnav-icon">📚</div>Learn
     </button>
   </nav>
 
@@ -1751,6 +1841,7 @@ function showPage(page){
   if(page==='assess'){renderAssessCatalogue();document.getElementById('assess-home').classList.remove('hidden');document.getElementById('assess-runner').classList.add('hidden');document.getElementById('assess-result').classList.add('hidden');}
   if(page==='reports'){populatePatientSelects();}
   if(page==='consult'){renderConsultQueue();}
+  if(page==='learn'){updateLearnApiUI();renderLearnHistory();}
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────
@@ -2194,6 +2285,182 @@ function updateApiKeyUI(){
   if(!indicator) return;
   if(key){indicator.textContent=`Active (sk-…${key.slice(-4)})`;indicator.style.color='var(--ok)';}
   else{indicator.textContent='Not configured — AI features disabled';indicator.style.color='var(--danger)';}
+}
+
+// ─── LEARNING COMPANION ────────────────────────────────────────────────────
+const LEARN_SCAFFOLD=`You are my learning companion. I am a GP with AuDHD, dyslexia, and an INFJ thinking style. Teach me ANY topic I bring using this exact scaffold. Never skip a layer. Never lead with jargon.
+
+FORMATTING RULES (dyslexia):
+- Short lines. One idea per line.
+- Bold the single key word in each concept using **double asterisks**, nothing more.
+- Every abstract idea gets (a) a concrete analogy and (b) a simple ASCII diagram.
+- Wrap every ASCII diagram in a triple-backtick code fence so it renders in a fixed-width box.
+- Define every Latin/Greek/technical term in plain words the first time it appears.
+- No walls of text. Use whitespace generously (blank lines between ideas).
+
+TEACH IN THIS ORDER (write each heading on its own line, exactly as shown):
+1. WHY IT EXISTS (evolutionary lens)
+   What problem/pressure brought this thing into being? What was the world like before it? What got selected for? (Use this for anything — a disease, a drug, a law, a concept.)
+2. FIRST PRINCIPLES (strip it down)
+   What are the irreducible parts? The 2-4 things that, if you remove them, it stops being this thing. State them as plainly as possible.
+3. BUILD IT BACK UP (emergence)
+   How do those simple parts interact to create the real, messy behaviour I observe in practice? Show the feedback loops, thresholds, tipping points. Draw the relationships as an ASCII map.
+4. ANCHOR IT (analogy + picture)
+   Give me ONE central analogy I'll remember, plus a labelled ASCII diagram of the whole thing.
+5. CLINICAL / REAL HOOK (optional, if relevant)
+   One line: where I'll actually meet this as a GP.
+
+END WITH:
+- A section headed exactly "TEST YOURSELF" with 3 questions (recall + one that forces me to apply it to a new case).
+- A section headed exactly "IF YOU FORGET EVERYTHING ELSE" with a one-sentence takeaway.
+
+Ask me one clarifying question ONLY if the topic is too broad to fit the scaffold. Otherwise, begin.`;
+
+let learnBusy=false;
+
+function learnChip(el){document.getElementById('learn-topic').value=el.textContent;document.getElementById('learn-topic').focus();}
+
+function toggleLearnApi(){
+  const panel=document.getElementById('learn-api-panel');
+  const isHidden=panel.style.display==='none'||!panel.style.display;
+  panel.style.display=isHidden?'block':'none';
+  if(isHidden){
+    const existing=getApiKey();
+    document.getElementById('learn-api-input').value=existing?'••••••••••••••••':'';
+    document.getElementById('learn-api-status').textContent=existing?`Key configured (…${existing.slice(-4)})`:'No key set';
+  }
+}
+function saveLearnApiKey(){
+  const val=document.getElementById('learn-api-input').value.trim();
+  if(!val||val.startsWith('•')){showToast('Enter a valid API key','error');return;}
+  if(!val.startsWith('sk-ant-')){showToast('Anthropic keys start with sk-ant-','error');return;}
+  try{localStorage.setItem('mm_apikey',val);}catch(e){showToast('Could not save key','error');return;}
+  document.getElementById('learn-api-input').value='••••••••••••••••';
+  document.getElementById('learn-api-status').textContent=`Saved (…${val.slice(-4)})`;
+  updateLearnApiUI();
+  showToast('API key saved','success');
+}
+function updateLearnApiUI(){
+  const key=getApiKey();
+  const ind=document.getElementById('learn-api-indicator');
+  if(!ind) return;
+  if(key){ind.textContent=`Active (sk-…${key.slice(-4)})`;ind.style.color='var(--ok)';}
+  else{ind.textContent='Not configured — add your key to begin';ind.style.color='var(--danger)';}
+}
+
+async function teachTopic(){
+  if(learnBusy) return;
+  const topic=(document.getElementById('learn-topic').value||'').trim();
+  if(!topic){showToast('Type a topic first','error');return;}
+  const key=getApiKey();
+  if(!key){showToast('Add your Anthropic API key to begin','error');toggleLearnApi();return;}
+
+  const out=document.getElementById('learn-output');
+  const btn=document.getElementById('learn-go-btn');
+  learnBusy=true;btn.disabled=true;btn.textContent='Thinking…';
+  out.innerHTML='<div class="learn-pane"><div class="learn-loading"><div class="learn-spin"></div>Building your lesson, layer by layer…</div></div>';
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2600,system:LEARN_SCAFFOLD,messages:[{role:'user',content:`Teach me: ${topic}`}]})
+    });
+    const data=await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const text=data.content?.map(b=>b.text||'').join('')||'';
+    if(!text){out.innerHTML='<div class="learn-pane">No response came back. Try again, or rephrase the topic.</div>';return;}
+    out.innerHTML=`<div class="learn-pane">${renderLesson(text)}</div>`;
+    document.getElementById('learn-clear-btn').style.display='';
+    saveLesson(topic,text);
+  }catch(e){
+    console.error('Lesson error:',e);
+    out.innerHTML=`<div class="learn-pane">Lesson unavailable — ${escapeHtmlL(e.message||'check your API key')}.<br>Check your key in ⚙ Configure API Key and try again.</div>`;
+  }finally{
+    learnBusy=false;btn.disabled=false;btn.textContent='✨ Teach me this';
+  }
+}
+
+function escapeHtmlL(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function inlineFmt(s){return escapeHtmlL(s).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');}
+
+// Render the lesson: preserve ASCII diagrams, bold key words, style the 5 layers + end sections.
+function renderLesson(text){
+  const parts=text.split(/```/);
+  let html='';
+  parts.forEach((seg,i)=>{
+    if(i%2===1){ // fenced ASCII diagram
+      const body=seg.replace(/^[a-zA-Z0-9_-]*\n/,'').replace(/\s+$/,'');
+      html+=`<pre class="ascii">${escapeHtmlL(body)}</pre>`;
+      return;
+    }
+    const lines=seg.split('\n');
+    let inCallout=null; // 'qs' | 'take'
+    const closeCallout=()=>{if(inCallout){html+='</div>';inCallout=null;}};
+    lines.forEach(raw=>{
+      const line=raw.replace(/\s+$/,'');
+      const t=line.trim();
+      if(!t){ if(!inCallout) html+='<div class="sp"></div>'; return; }
+      // Layer headings: "1. WHY IT EXISTS ..." — number, then mostly-uppercase title
+      const isLayer=/^\d\.\s+[A-Z][A-Z '/()-]{2,}/.test(t);
+      if(isLayer){
+        closeCallout();
+        const m=t.match(/^(\d)\.\s+(.+)/);
+        html+=`<div class="layer"><div class="layer-num">${m[1]}</div><div class="layer-name">${inlineFmt(m[2])}</div></div>`;
+        return;
+      }
+      // End sections
+      if(/^TEST YOURSELF/i.test(t)){closeCallout();inCallout='qs';html+=`<div class="qs"><div class="callout-t">🧪 Test yourself</div>`;return;}
+      if(/^IF YOU FORGET/i.test(t)){closeCallout();inCallout='take';html+=`<div class="callout"><div class="callout-t">🎯 If you forget everything else</div>`;return;}
+      // Uppercase sub-labels like "ANALOGY:" or "WHY IT EXISTS"
+      if(/^[A-Z][A-Z '/()-]{3,}:?$/.test(t) && t.length<48 && !inCallout){
+        html+=`<div class="subhead">${inlineFmt(t.replace(/:$/,''))}</div>`;return;
+      }
+      html+=`<div class="ln">${inlineFmt(line)}</div>`;
+    });
+    closeCallout();
+  });
+  return html;
+}
+
+function clearLesson(){
+  document.getElementById('learn-output').innerHTML='';
+  document.getElementById('learn-topic').value='';
+  document.getElementById('learn-clear-btn').style.display='none';
+  document.getElementById('learn-topic').focus();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveLesson(topic,text){
+  let hist=ls('mm_learn')||[];
+  hist=hist.filter(h=>h.topic.toLowerCase()!==topic.toLowerCase());
+  hist.unshift({topic,text,date:new Date().toISOString()});
+  hist=hist.slice(0,20);
+  ls('mm_learn',hist);
+  renderLearnHistory();
+}
+function renderLearnHistory(){
+  const hist=ls('mm_learn')||[];
+  const wrap=document.getElementById('learn-history');
+  const list=document.getElementById('learn-history-list');
+  if(!wrap||!list) return;
+  if(!hist.length){wrap.style.display='none';return;}
+  wrap.style.display='';
+  list.innerHTML=hist.map((h,i)=>`<div class="learn-hist-item" onclick="openLesson(${i})">
+    <div><div class="learn-hist-topic">${escapeHtmlL(h.topic)}</div><div class="learn-hist-date">${fmtDate(h.date)}</div></div>
+    <button class="learn-hist-del" onclick="event.stopPropagation();deleteLesson(${i})" title="Remove">✕</button>
+  </div>`).join('');
+}
+function openLesson(i){
+  const hist=ls('mm_learn')||[];const h=hist[i];if(!h) return;
+  document.getElementById('learn-topic').value=h.topic;
+  document.getElementById('learn-output').innerHTML=`<div class="learn-pane">${renderLesson(h.text)}</div>`;
+  document.getElementById('learn-clear-btn').style.display='';
+  document.getElementById('learn-output').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function deleteLesson(i){
+  let hist=ls('mm_learn')||[];hist.splice(i,1);ls('mm_learn',hist);renderLearnHistory();
 }
 
 let toastTimer;
